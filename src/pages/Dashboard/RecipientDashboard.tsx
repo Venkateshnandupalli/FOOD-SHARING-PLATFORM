@@ -1,7 +1,9 @@
+import React, { useEffect, useState } from 'react'
 import { MapPin, Heart, Package, Clock, ArrowRight, CheckCircle, Star } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import { StatCard, Card, Badge, Button, ProgressBar } from '@/components/ui'
+import { Link, Navigate } from 'react-router-dom'
+import { StatCard, Card, Badge, Button, ProgressBar, Spinner } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
+import { organizationService } from '@/services/organizationService'
 import { urgencyLabel } from '@/lib/utils'
 
 // ─── Mock nearby donations ────────────────────────────────────────────────────
@@ -29,6 +31,36 @@ const NEARBY_DONATIONS = [
 export default function RecipientDashboard() {
   const { profile } = useAuthStore()
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasOrg, setHasOrg] = useState(false)
+
+  useEffect(() => {
+    async function checkOrg() {
+      if (!profile) return
+      try {
+        const org = await organizationService.getOrganizationByOwnerId(profile.id)
+        if (org) setHasOrg(true)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    checkOrg()
+  }, [profile])
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Spinner size="lg" color="primary" />
+      </div>
+    )
+  }
+
+  if (!hasOrg) {
+    return <Navigate to="/recipient/onboarding" replace />
+  }
 
   return (
     <div className="space-y-6">
