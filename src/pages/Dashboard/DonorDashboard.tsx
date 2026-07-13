@@ -164,9 +164,9 @@ export default function DonorDashboard() {
                   <tr key={d.id} className={`border-b border-[hsl(220,13%,95%)] hover:bg-[hsl(220,13%,98%)] transition-colors ${i === recentDonations.length - 1 ? 'border-0' : ''}`}>
                     <td className="py-4 px-6">
                       <div className="font-medium text-[hsl(220,15%,15%)]">{d.title}</div>
-                      <div className="text-xs text-[hsl(220,10%,55%)] mt-0.5">{d.category.replace(/_/g, ' ')}</div>
+                      <div className="text-xs text-[hsl(220,10%,55%)] mt-0.5">{(d.food_category || d.category || '').replace(/_/g, ' ')}</div>
                     </td>
-                    <td className="py-4 px-4 text-[hsl(220,10%,35%)]">{d.quantity} {d.unit}</td>
+                    <td className="py-4 px-4 text-[hsl(220,10%,35%)]">{d.quantity} {d.quantity_unit || d.unit}</td>
                     <td className="py-4 px-4">
                       <span className="font-medium text-xs" style={{ color: urgency.color }}>
                         {urgency.label}
