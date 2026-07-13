@@ -458,6 +458,15 @@ CREATE POLICY "Donors can update their own donations"
   ON donations FOR UPDATE
   USING (donor_id = auth_profile_id() OR auth_user_role() = 'ADMIN');
 
+-- ── donation_images ───────────────────────────────────────────────────────────
+CREATE POLICY "Anyone can view donation images"
+  ON donation_images FOR SELECT
+  USING (true);
+
+CREATE POLICY "Donors can insert donation images"
+  ON donation_images FOR INSERT
+  WITH CHECK (auth_user_role() = 'DONOR');
+
 -- ── matches ───────────────────────────────────────────────────────────────────
 CREATE POLICY "Recipients can see their matches"
   ON matches FOR SELECT
