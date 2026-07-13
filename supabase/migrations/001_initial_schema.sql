@@ -509,9 +509,9 @@ ORDER BY d.use_before ASC;
 -- Platform summary stats
 CREATE OR REPLACE VIEW platform_stats AS
 SELECT
-  COUNT(*) FILTER (WHERE status = 'DELIVERED')   AS total_delivered,
-  COUNT(*) FILTER (WHERE status = 'AVAILABLE')   AS currently_available,
-  COUNT(*) FILTER (WHERE status = 'EXPIRED')     AS total_expired,
+  COUNT(*) FILTER (WHERE d.status = 'DELIVERED')   AS total_delivered,
+  COUNT(*) FILTER (WHERE d.status = 'AVAILABLE')   AS currently_available,
+  COUNT(*) FILTER (WHERE d.status = 'EXPIRED')     AS total_expired,
   COALESCE(SUM(im.food_weight_kg), 0)            AS total_food_rescued_kg,
   COALESCE(SUM(im.estimated_meals), 0)           AS total_meals_supported,
   COUNT(DISTINCT d.donor_id)                     AS unique_donors
