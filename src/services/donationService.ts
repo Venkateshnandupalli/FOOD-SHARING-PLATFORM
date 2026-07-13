@@ -21,6 +21,16 @@ export const donationService = {
     return data || []
   },
 
+  /** Fetch AI recommended matches for a specific organization */
+  async getRecommendedMatches(orgId: string) {
+    const { data, error } = await supabase.rpc('get_ai_recommended_matches', {
+      p_org_id: orgId
+    })
+
+    if (error) throw error
+    return data || []
+  },
+
   /** Fetch all available donations (for recipients) */
   async getAvailableDonations(): Promise<any[]> {
     const { data, error } = await supabase
