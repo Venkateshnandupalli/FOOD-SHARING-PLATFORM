@@ -195,22 +195,19 @@ export default function RecipientDashboard() {
           title="Total Meals Claimed"
           value="0"
           icon={<Heart className="w-5 h-5" />}
-          color="text-red-500"
-          bg="bg-red-50"
+          color="orange"
         />
         <StatCard
           title="Active Deliveries"
           value="0"
           icon={<Package className="w-5 h-5" />}
-          color="text-blue-500"
-          bg="bg-blue-50"
+          color="blue"
         />
         <StatCard
           title="Waste Prevented (lbs)"
           value="0"
           icon={<CheckCircle className="w-5 h-5" />}
-          color="text-green-500"
-          bg="bg-green-50"
+          color="green"
         />
       </div>
     </div>
