@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react'
 import {
   Package, TrendingUp, Clock, CheckCircle,
   PlusCircle, ArrowRight, Leaf, AlertCircle
@@ -5,6 +6,7 @@ import {
 import { Link } from 'react-router-dom'
 import { StatCard, Card, Badge, Button, EmptyState, ProgressBar } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
+import { donationService } from '@/services/donationService'
 import { urgencyLabel, formatDate } from '@/lib/utils'
 
 // ─── Mock data (replaced by API data in Phase 2) ──────────────────────────────
@@ -30,6 +32,27 @@ const STATUS_CONFIG: Record<string, { label: string; variant: 'success' | 'info'
 export default function DonorDashboard() {
   const { profile } = useAuthStore()
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
+
+  const [recentDonations, setRecentDonations] = useState<any[]>(MOCK_DONATIONS)
+  const [activeCount, setActiveCount] = useState(3)
+
+  useEffect(() => {
+    async function fetchDashboard() {
+      if (!profile) return
+      if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('your-project')) {
+        return // stick to mock
+      }
+      try {
+        const data = await donationService.getDonorDonations(profile.id)
+        const active = data.filter(d => d.status === 'AVAILABLE' || d.status === 'MATCHED')
+        setActiveCount(active.length)
+        setRecentDonations(data.slice(0, 4))
+      } catch (err) {
+        console.error('Dashboard load failed:', err)
+      }
+    }
+    fetchDashboard()
+  }, [profile])
 
   const now = new Date()
   const hour = now.getHours()
@@ -58,8 +81,8 @@ export default function DonorDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Active Donations"
-          value="3"
-          subtitle="2 matched, 1 available"
+          value={activeCount.toString()}
+          subtitle="Currently active"
           icon={<Package className="w-5 h-5" />}
           color="green"
           trend={{ value: 12, label: 'vs last week' }}
@@ -134,11 +157,11 @@ export default function DonorDashboard() {
               </tr>
             </thead>
             <tbody>
-              {MOCK_DONATIONS.map((d, i) => {
+              {recentDonations.map((d, i) => {
                 const urgency = urgencyLabel(d.use_before)
                 const status = STATUS_CONFIG[d.status] ?? { label: d.status, variant: 'default' as const }
                 return (
-                  <tr key={d.id} className={`border-b border-[hsl(220,13%,95%)] hover:bg-[hsl(220,13%,98%)] transition-colors ${i === MOCK_DONATIONS.length - 1 ? 'border-0' : ''}`}>
+                  <tr key={d.id} className={`border-b border-[hsl(220,13%,95%)] hover:bg-[hsl(220,13%,98%)] transition-colors ${i === recentDonations.length - 1 ? 'border-0' : ''}`}>
                     <td className="py-4 px-6">
                       <div className="font-medium text-[hsl(220,15%,15%)]">{d.title}</div>
                       <div className="text-xs text-[hsl(220,10%,55%)] mt-0.5">{d.category.replace(/_/g, ' ')}</div>

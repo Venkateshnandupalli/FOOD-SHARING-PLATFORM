@@ -10,6 +10,9 @@ import Register from '@/pages/Auth/Register'
 // Dashboard layout + dashboards
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import DonorDashboard from '@/pages/Dashboard/DonorDashboard'
+import CreateDonation from '@/pages/Dashboard/Donor/CreateDonation'
+import DonationList from '@/pages/Dashboard/Donor/DonationList'
+import DonationDetail from '@/pages/Dashboard/Donor/DonationDetail'
 import RecipientDashboard from '@/pages/Dashboard/RecipientDashboard'
 import VolunteerDashboard from '@/pages/Dashboard/VolunteerDashboard'
 import AdminDashboard from '@/pages/Dashboard/AdminDashboard'
@@ -68,8 +71,9 @@ export default function App() {
           }
         >
           <Route index element={<DonorDashboard />} />
-          <Route path="create"       element={<ComingSoon page="Create Donation" />} />
-          <Route path="donations"    element={<ComingSoon page="My Donations" />} />
+          <Route path="create"       element={<CreateDonation />} />
+          <Route path="donations"    element={<DonationList />} />
+          <Route path="donations/:id"element={<DonationDetail />} />
           <Route path="tracking"     element={<ComingSoon page="Pickup Tracking" />} />
           <Route path="impact"       element={<ComingSoon page="Impact Report" />} />
           <Route path="notifications"element={<ComingSoon page="Notifications" />} />
