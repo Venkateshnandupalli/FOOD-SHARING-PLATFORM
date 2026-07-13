@@ -239,22 +239,10 @@ export default function Register() {
 
       if (signupError) throw signupError
 
-      // 2. Create profile record
+      // 2. Profile record is automatically created via Supabase database trigger
       if (authData.user) {
-        const { error: profileError } = await supabase.from('profiles').insert({
-          auth_user_id: authData.user.id,
-          full_name: data.full_name,
-          phone: data.phone || null,
-          role: selectedRole,
-          is_active: true,
-        })
-
-        if (profileError) {
-          // Profile creation failed - show exact database error
-          import('react-hot-toast').then(m => m.default.error(`DB Error: ${profileError.message}`))
-          setIsLoading(false)
-          return
-        }
+        // Wait a small moment for the trigger to finish
+        await new Promise(resolve => setTimeout(resolve, 500))
         
         // Refresh the auth store profile so it's populated immediately
         const { refreshProfile } = await import('@/store/authStore').then(m => m.useAuthStore.getState())
