@@ -167,9 +167,9 @@ export default function RecipientDashboard() {
                         <span>{scorePercent}/100</span>
                       </div>
                       <ProgressBar 
-                        progress={scorePercent} 
+                        value={scorePercent} 
                         color={scorePercent > 75 ? 'green' : 'orange'} 
-                        size="sm" 
+                        height="sm" 
                       />
                     </div>
 
