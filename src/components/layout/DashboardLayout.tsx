@@ -222,9 +222,9 @@ export default function DashboardLayout({ role }: { role: UserRole }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-[hsl(40,20%,97%)]">
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:block z-40">
+    <div className="dashboard-layout bg-[hsl(40,20%,97%)]">
+      {/* Desktop sidebar (Grid column 1) */}
+      <div className="hidden lg:block h-screen sticky top-0 border-r border-[hsl(220,13%,91%)] z-40 bg-white">
         <Sidebar role={role} />
       </div>
 
@@ -235,14 +235,14 @@ export default function DashboardLayout({ role }: { role: UserRole }) {
           onClick={() => setSidebarOpen(false)}
         >
           <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
-          <div className="relative w-72" onClick={(e) => e.stopPropagation()}>
+          <div className="relative w-72 h-full bg-white" onClick={(e) => e.stopPropagation()}>
             <Sidebar role={role} onClose={() => setSidebarOpen(false)} />
           </div>
         </div>
       )}
 
-      {/* Main content */}
-      <div className="lg:pl-64 flex flex-col min-h-screen">
+      {/* Main content (Grid column 2) */}
+      <div className="flex flex-col min-h-screen min-w-0">
         <Topbar role={role} onMenuClick={() => setSidebarOpen(true)} />
         <main className="flex-1 p-4 lg:p-6 overflow-x-hidden">
           <Outlet />

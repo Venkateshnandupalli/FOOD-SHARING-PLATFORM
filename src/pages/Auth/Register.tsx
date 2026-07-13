@@ -373,7 +373,7 @@ export default function Register() {
             <span className="text-xs text-[hsl(220,10%,52%)] ml-2">Step {step} of 2</span>
           </div>
 
-          <Card padding="lg" className="shadow-md">
+          <Card className="p-8 shadow-md">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {step === 1 && (
                 <RoleSelection selected={selectedRole} onSelect={(r) => setSelectedRole(r)} />

@@ -137,7 +137,7 @@ export default function Login() {
             </p>
           </div>
 
-          <Card padding="lg" className="shadow-md">
+          <Card className="p-8 shadow-md">
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
               <Input
                 label="Email address"
