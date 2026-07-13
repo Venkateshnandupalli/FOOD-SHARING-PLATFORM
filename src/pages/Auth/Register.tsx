@@ -250,8 +250,10 @@ export default function Register() {
         })
 
         if (profileError) {
-          // Profile creation failed — not fatal for demo; log it
-          console.warn('Profile insert failed:', profileError.message)
+          // Profile creation failed - show exact database error
+          import('react-hot-toast').then(m => m.default.error(`DB Error: ${profileError.message}`))
+          setIsLoading(false)
+          return
         }
         
         // Refresh the auth store profile so it's populated immediately
