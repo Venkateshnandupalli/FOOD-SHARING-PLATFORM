@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MapPin, Clock, ArrowRight, Filter, Search } from 'lucide-react'
+import { MapPin, Clock, ArrowRight, Filter, Search, LayoutGrid, Map as MapIcon } from 'lucide-react'
 import { Button, Input, Card, Badge, Spinner, EmptyState } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { donationService } from '@/services/donationService'
@@ -8,6 +8,17 @@ import { organizationService } from '@/services/organizationService'
 import { matchService } from '@/services/matchService'
 import { urgencyLabel } from '@/lib/utils'
 import toast from 'react-hot-toast'
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+
+// Fix leaflet default icon issue in React
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+})
 
 export default function BrowseDonations() {
   const { profile } = useAuthStore()
@@ -15,6 +26,7 @@ export default function BrowseDonations() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [acceptingId, setAcceptingId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid')
 
   useEffect(() => {
     async function load() {
@@ -72,6 +84,21 @@ export default function BrowseDonations() {
           <p className="text-gray-500 mt-1">Find and claim surplus food from local donors</p>
         </div>
         <div className="flex gap-2 w-full sm:w-auto">
+          {/* Toggle View */}
+          <div className="bg-white border border-gray-200 rounded-lg p-1 flex">
+            <button 
+              onClick={() => setViewMode('grid')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center transition-colors ${viewMode === 'grid' ? 'bg-[hsl(142,60%,94%)] text-[hsl(142,71%,28%)]' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              <LayoutGrid className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">List</span>
+            </button>
+            <button 
+              onClick={() => setViewMode('map')}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium flex items-center transition-colors ${viewMode === 'map' ? 'bg-[hsl(142,60%,94%)] text-[hsl(142,71%,28%)]' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              <MapIcon className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Map</span>
+            </button>
+          </div>
           <div className="relative flex-1 sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input 
@@ -104,6 +131,46 @@ export default function BrowseDonations() {
             </Button>
           }
         />
+      ) : viewMode === 'map' ? (
+        <div className="h-[600px] w-full rounded-xl overflow-hidden border border-gray-200 relative z-0">
+          <MapContainer center={[16.9891, 82.2475]} zoom={13} style={{ height: '100%', width: '100%' }}>
+            <TileLayer
+              url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+              attribution='&copy; <a href="https://carto.com/">Carto</a>'
+            />
+            {filteredDonations.map(donation => {
+              if (!donation.pickup_latitude || !donation.pickup_longitude) return null
+              
+              const primaryImage = donation.donation_images?.find((img: any) => img.is_primary)?.image_url
+                || donation.donation_images?.[0]?.image_url
+                || 'https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=600'
+              const { label, color } = urgencyLabel(donation.use_before)
+              
+              return (
+                <Marker key={donation.id} position={[donation.pickup_latitude, donation.pickup_longitude]}>
+                  <Popup>
+                    <div className="w-48 font-sans">
+                      <img src={primaryImage} className="w-full h-24 object-cover rounded-md mb-2" alt="Food" />
+                      <h4 className="font-bold text-sm line-clamp-1 mb-1 text-gray-900">{donation.title}</h4>
+                      <div className={`inline-block px-2 py-0.5 rounded-full bg-${color}-100 text-${color}-800 text-[10px] font-medium mb-2`}>
+                        {label}
+                      </div>
+                      <p className="text-xs text-gray-500 mb-3">{donation.quantity} {donation.quantity_unit} • {donation.food_category.replace('_', ' ')}</p>
+                      <Button 
+                        size="sm" 
+                        className="w-full h-8 text-xs" 
+                        onClick={() => handleAccept(donation.id)}
+                        isLoading={acceptingId === donation.id}
+                      >
+                        Accept
+                      </Button>
+                    </div>
+                  </Popup>
+                </Marker>
+              )
+            })}
+          </MapContainer>
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDonations.map(donation => {
