@@ -92,9 +92,19 @@ export default function CreateDonation() {
   }
 
   const handleNext = () => {
+    setError('')
     // Basic validation per step
     if (step === 1 && (!formData.title || !formData.food_category)) return
-    if (step === 2 && (!formData.quantity || !formData.estimated_servings || !formData.prepared_at || !formData.use_before)) return
+    if (step === 2) {
+      if (!formData.quantity || !formData.estimated_servings || !formData.prepared_at || !formData.use_before) return
+      
+      const preparedTime = new Date(formData.prepared_at).getTime()
+      const useBeforeTime = new Date(formData.use_before).getTime()
+      if (useBeforeTime <= preparedTime) {
+        setError('Expiry time must be after the prepared time.')
+        return
+      }
+    }
     if (step === 3 && (!formData.pickup_address)) return
     setStep(s => Math.min(4, s + 1))
     window.scrollTo(0, 0)
