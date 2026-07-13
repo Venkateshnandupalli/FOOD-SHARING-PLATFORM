@@ -13,7 +13,7 @@ import DonorDashboard from '@/pages/Dashboard/DonorDashboard'
 import CreateDonation from '@/pages/Dashboard/Donor/CreateDonation'
 import DonationList from '@/pages/Dashboard/Donor/DonationList'
 import DonationDetail from '@/pages/Dashboard/Donor/DonationDetail'
-
+import ImpactDashboard from '@/pages/Dashboard/Donor/ImpactDashboard'
 import RecipientDashboard from '@/pages/Dashboard/RecipientDashboard'
 import BrowseDonations from '@/pages/Dashboard/Recipient/BrowseDonations'
 import OrganizationOnboarding from '@/pages/Dashboard/Recipient/OrganizationOnboarding'
@@ -79,7 +79,7 @@ export default function App() {
           <Route path="donations"    element={<DonationList />} />
           <Route path="donations/:id"element={<DonationDetail />} />
           <Route path="tracking"     element={<ComingSoon page="Pickup Tracking" />} />
-          <Route path="impact"       element={<ComingSoon page="Impact Report" />} />
+          <Route path="impact"       element={<ImpactDashboard />} />
           <Route path="notifications"element={<ComingSoon page="Notifications" />} />
           <Route path="organisation" element={<ComingSoon page="Organisation Profile" />} />
           <Route path="settings"     element={<ComingSoon page="Settings" />} />
