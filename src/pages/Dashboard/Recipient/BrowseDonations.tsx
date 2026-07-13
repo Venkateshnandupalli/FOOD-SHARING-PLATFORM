@@ -19,6 +19,12 @@ export default function BrowseDonations() {
   useEffect(() => {
     async function load() {
       try {
+        const org = await organizationService.getOrganizationByOwnerId(profile!.id)
+        if (!org) {
+          window.location.href = '/recipient/onboarding'
+          return
+        }
+        
         const data = await donationService.getAvailableDonations()
         setDonations(data)
       } catch (err: any) {
