@@ -14,10 +14,11 @@ export const matchService = {
         recipient_organization_id: recipientOrganizationId,
         distance_km: 0, // Mock distance since it's a manual claim
         match_status: 'ACCEPTED',
-        urgency_score: 100, // Manual claim gets highest priority
-        demand_score: 100,
-        capacity_score: 100,
-        reliability_score: 100
+        urgency_score: 1.0, // Manual claim gets highest priority
+        demand_score: 1.0,
+        capacity_score: 1.0,
+        reliability_score: 1.0,
+        total_match_score: 1.0
       })
 
     if (matchError) {
