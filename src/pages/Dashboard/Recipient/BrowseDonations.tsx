@@ -4,6 +4,8 @@ import { MapPin, Clock, ArrowRight, Filter, Search } from 'lucide-react'
 import { Button, Input, Card, Badge, Spinner, EmptyState } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { donationService } from '@/services/donationService'
+import { organizationService } from '@/services/organizationService'
+import { matchService } from '@/services/matchService'
 import { urgencyLabel } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
@@ -12,10 +14,10 @@ export default function BrowseDonations() {
   const [donations, setDonations] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [acceptingId, setAcceptingId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
-      if (!profile) return
       try {
         const data = await donationService.getAvailableDonations()
         setDonations(data)
@@ -26,7 +28,7 @@ export default function BrowseDonations() {
       }
     }
     load()
-  }, [profile])
+  }, [])
 
   const filteredDonations = donations.filter(d => 
     d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,7 +36,25 @@ export default function BrowseDonations() {
   )
 
   const handleAccept = async (donationId: string) => {
-    toast.error('Organization required to accept donations. We will build the NGO onboarding flow next!')
+    if (!profile) return
+    setAcceptingId(donationId)
+    try {
+      const org = await organizationService.getOrganizationByOwnerId(profile.id)
+      if (!org) {
+        toast.error('You need an Organization profile to claim food!')
+        return
+      }
+
+      await matchService.acceptDonation(donationId, org.id)
+      
+      toast.success('Donation accepted successfully! You have been matched.')
+      // Remove from list
+      setDonations(prev => prev.filter(d => d.id !== donationId))
+    } catch (err: any) {
+      toast.error(err.message)
+    } finally {
+      setAcceptingId(null)
+    }
   }
 
   return (
@@ -133,7 +153,11 @@ export default function BrowseDonations() {
                       </div>
                       <span className="text-sm font-medium text-gray-700">{donorName}</span>
                     </div>
-                    <Button size="sm" onClick={() => handleAccept(donation.id)}>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleAccept(donation.id)}
+                      isLoading={acceptingId === donation.id}
+                    >
                       Accept <ArrowRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
