@@ -13,7 +13,10 @@ import DonorDashboard from '@/pages/Dashboard/DonorDashboard'
 import CreateDonation from '@/pages/Dashboard/Donor/CreateDonation'
 import DonationList from '@/pages/Dashboard/Donor/DonationList'
 import DonationDetail from '@/pages/Dashboard/Donor/DonationDetail'
+
 import RecipientDashboard from '@/pages/Dashboard/RecipientDashboard'
+import BrowseDonations from '@/pages/Dashboard/Recipient/BrowseDonations'
+
 import VolunteerDashboard from '@/pages/Dashboard/VolunteerDashboard'
 import AdminDashboard from '@/pages/Dashboard/AdminDashboard'
 
@@ -91,7 +94,7 @@ export default function App() {
           }
         >
           <Route index element={<RecipientDashboard />} />
-          <Route path="browse"        element={<ComingSoon page="Browse Nearby Donations" />} />
+          <Route path="browse"        element={<BrowseDonations />} />
           <Route path="requirements"  element={<ComingSoon page="My Requirements" />} />
           <Route path="accepted"      element={<ComingSoon page="Accepted Donations" />} />
           <Route path="history"       element={<ComingSoon page="Delivery History" />} />

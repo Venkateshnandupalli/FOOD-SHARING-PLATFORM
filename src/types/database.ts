@@ -250,6 +250,22 @@ export interface Database {
       ratings: { Row: Rating; Insert: Partial<Rating>; Update: Partial<Rating> }
       audit_logs: { Row: AuditLog; Insert: Partial<AuditLog>; Update: Partial<AuditLog> }
     }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: {
+      user_role: UserRole
+      verification_status: VerificationStatus
+      donation_status: DonationStatus
+      dietary_type: DietaryType
+      food_category: FoodCategory
+      storage_type: StorageType
+      packaging_status: PackagingStatus
+      match_status: MatchStatus
+      delivery_status: DeliveryStatus
+      delivery_preference: DeliveryPreference
+      organization_type: OrganizationType
+    }
+    CompositeTypes: Record<string, never>
   }
 }
 

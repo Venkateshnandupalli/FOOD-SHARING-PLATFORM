@@ -21,6 +21,22 @@ export const donationService = {
     return data || []
   },
 
+  /** Fetch all available donations (for recipients) */
+  async getAvailableDonations(): Promise<any[]> {
+    const { data, error } = await supabase
+      .from('donations')
+      .select(`
+        *,
+        donation_images (*),
+        profiles!donations_donor_id_fkey (full_name, profile_image_url)
+      `)
+      .eq('status', 'AVAILABLE')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
+  },
+
   /** Fetch a specific donation with its images */
   async getDonationById(id: string): Promise<{ donation: Donation, images: DonationImage[] }> {
     const [donationRes, imagesRes] = await Promise.all([
