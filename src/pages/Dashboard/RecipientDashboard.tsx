@@ -17,6 +17,11 @@ export default function RecipientDashboard() {
   const [org, setOrg] = useState<any>(null)
   const [matches, setMatches] = useState<any[]>([])
   const [claimingId, setClaimingId] = useState<string | null>(null)
+  const [stats, setStats] = useState({
+    activeDeliveries: 0,
+    totalMealsClaimed: 0,
+    wastePreventedLbs: 0
+  })
 
   const loadData = async () => {
     if (!profile) return
@@ -26,8 +31,12 @@ export default function RecipientDashboard() {
       setOrg(organization)
       
       if (organization && organization.verification_status === 'APPROVED') {
-        const recommended = await donationService.getRecommendedMatches(organization.id)
+        const [recommended, orgStats] = await Promise.all([
+          donationService.getRecommendedMatches(organization.id),
+          organizationService.getOrganizationStats(organization.id)
+        ])
         setMatches(recommended || [])
+        setStats(orgStats)
       }
     } catch (e: any) {
       toast.error(e.message)
@@ -189,23 +198,23 @@ export default function RecipientDashboard() {
         )}
       </div>
 
-      {/* ── Impact Overview (Placeholder) ── */}
+      {/* ── Impact Overview ── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gray-100">
         <StatCard
           title="Total Meals Claimed"
-          value="0"
+          value={stats.totalMealsClaimed.toString()}
           icon={<Heart className="w-5 h-5" />}
           color="orange"
         />
         <StatCard
           title="Active Deliveries"
-          value="0"
+          value={stats.activeDeliveries.toString()}
           icon={<Package className="w-5 h-5" />}
           color="blue"
         />
         <StatCard
           title="Waste Prevented (lbs)"
-          value="0"
+          value={stats.wastePreventedLbs.toString()}
           icon={<CheckCircle className="w-5 h-5" />}
           color="green"
         />
