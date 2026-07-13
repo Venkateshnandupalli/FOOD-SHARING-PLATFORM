@@ -412,6 +412,10 @@ CREATE POLICY "Users can view their own profile"
   ON profiles FOR SELECT
   USING (auth_user_id = auth.uid());
 
+CREATE POLICY "Users can insert their own profile"
+  ON profiles FOR INSERT
+  WITH CHECK (auth_user_id = auth.uid());
+
 CREATE POLICY "Admins can view all profiles"
   ON profiles FOR SELECT
   USING (auth_user_role() = 'ADMIN');
