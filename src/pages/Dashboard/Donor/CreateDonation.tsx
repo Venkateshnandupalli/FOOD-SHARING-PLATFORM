@@ -107,7 +107,10 @@ export default function CreateDonation() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!profile) return
+    if (!profile) {
+      import('react-hot-toast').then(m => m.default.error('User profile not found. Please log in again.'))
+      return
+    }
     if (!formData.food_safety_acknowledged) {
       setError('You must acknowledge food safety guidelines to proceed.')
       return

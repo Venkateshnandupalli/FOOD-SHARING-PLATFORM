@@ -253,6 +253,10 @@ export default function Register() {
           // Profile creation failed — not fatal for demo; log it
           console.warn('Profile insert failed:', profileError.message)
         }
+        
+        // Refresh the auth store profile so it's populated immediately
+        const { refreshProfile } = await import('@/store/authStore').then(m => m.useAuthStore.getState())
+        await refreshProfile()
       }
 
       toast.success('Account created! Welcome to SharePlate AI.')
