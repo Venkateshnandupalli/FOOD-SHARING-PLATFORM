@@ -259,9 +259,10 @@ export default function Register() {
         ANALYST: '/analytics',
       }
       navigate(roleRoutes[selectedRole])
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Registration failed.'
-      toast.error(message)
+    } catch (err: any) {
+      console.error('Registration Error:', err)
+      const message = err?.message || err?.error_description || (typeof err === 'string' ? err : JSON.stringify(err))
+      toast.error(message || 'Registration failed.')
     } finally {
       setIsLoading(false)
     }
