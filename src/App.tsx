@@ -21,6 +21,9 @@ import OrganizationOnboarding from '@/pages/Dashboard/Recipient/OrganizationOnbo
 import VolunteerDashboard from '@/pages/Dashboard/VolunteerDashboard'
 import AdminDashboard from '@/pages/Dashboard/AdminDashboard'
 
+// Shared
+import Settings from '@/pages/Shared/Settings'
+
 // Guards
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
 
@@ -82,7 +85,7 @@ export default function App() {
           <Route path="impact"       element={<ImpactDashboard />} />
           <Route path="notifications"element={<ComingSoon page="Notifications" />} />
           <Route path="organisation" element={<ComingSoon page="Organisation Profile" />} />
-          <Route path="settings"     element={<ComingSoon page="Settings" />} />
+          <Route path="settings"     element={<Settings />} />
         </Route>
 
         {/* ── Recipient routes ── */}
@@ -102,7 +105,7 @@ export default function App() {
           <Route path="history"       element={<ComingSoon page="Delivery History" />} />
           <Route path="notifications" element={<ComingSoon page="Notifications" />} />
           <Route path="organisation"  element={<ComingSoon page="Organisation Profile" />} />
-          <Route path="settings"      element={<ComingSoon page="Settings" />} />
+          <Route path="settings"      element={<Settings />} />
         </Route>
 
         {/* ── Volunteer routes ── */}
@@ -120,7 +123,7 @@ export default function App() {
           <Route path="history"     element={<ComingSoon page="Delivery History" />} />
           <Route path="impact"      element={<ComingSoon page="My Impact" />} />
           <Route path="ratings"     element={<ComingSoon page="Ratings & Reviews" />} />
-          <Route path="settings"    element={<ComingSoon page="Settings" />} />
+          <Route path="settings"    element={<Settings />} />
         </Route>
 
         {/* ── Admin routes ── */}
@@ -139,7 +142,7 @@ export default function App() {
           <Route path="users"         element={<ComingSoon page="User Management" />} />
           <Route path="reports"       element={<ComingSoon page="Reports & Incidents" />} />
           <Route path="analytics"     element={<ComingSoon page="Platform Analytics" />} />
-          <Route path="settings"      element={<ComingSoon page="Platform Settings" />} />
+          <Route path="settings"      element={<Settings />} />
         </Route>
 
         {/* ── Analytics routes ── */}
