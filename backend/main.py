@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine
-from routers import analytics, donations, matches, admin
+from routers import analytics, donations, matches, admin, deliveries, ratings
 
 app = FastAPI(
     title="SharePlate AI Backend",
@@ -32,3 +32,5 @@ app.include_router(analytics.router)
 app.include_router(donations.router)
 app.include_router(matches.router)
 app.include_router(admin.router)
+app.include_router(deliveries.router)
+app.include_router(ratings.router)

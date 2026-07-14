@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
 from pydantic import BaseModel
+from auth import verify_user, User
 
 router = APIRouter(
     prefix="/api/admin",
@@ -13,7 +14,7 @@ class StatusUpdateReq(BaseModel):
     status: str
 
 @router.get("/metrics")
-def get_system_metrics(db: Session = Depends(get_db)):
+def get_system_metrics(db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Get high level system metrics."""
     query = text("""
         SELECT 
@@ -26,7 +27,7 @@ def get_system_metrics(db: Session = Depends(get_db)):
     return result
 
 @router.get("/organizations/pending")
-def get_pending_organizations(db: Session = Depends(get_db)):
+def get_pending_organizations(db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Fetch organizations awaiting approval."""
     query = text("""
         SELECT o.*, 
@@ -40,7 +41,7 @@ def get_pending_organizations(db: Session = Depends(get_db)):
     return result
 
 @router.patch("/organizations/{org_id}/status")
-def update_organization_status(org_id: str, req: StatusUpdateReq, db: Session = Depends(get_db)):
+def update_organization_status(org_id: str, req: StatusUpdateReq, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Approve or Reject an organization."""
     query = text("""
         UPDATE organizations

@@ -1,21 +1,18 @@
 import { supabase } from '@/lib/supabase'
 import type { Database } from '@/types/database'
+import { fetchApi } from '@/lib/api'
 
 type Donation = Database['public']['Tables']['donations']['Row']
 type DonationInsert = Database['public']['Tables']['donations']['Insert']
 type DonationUpdate = Database['public']['Tables']['donations']['Update']
 type DonationImage = Database['public']['Tables']['donation_images']['Row']
 
-const API_BASE_URL = 'http://localhost:8000/api'
-
 export const donationService = {
   // ─── Fetching ───────────────────────────────────────────────────────────────
   
   /** Fetch all donations created by a specific donor */
   async getDonorDonations(donorId: string): Promise<Donation[]> {
-    const response = await fetch(`${API_BASE_URL}/donations/donor/${donorId}`)
-    if (!response.ok) throw new Error('Failed to fetch donor donations from Python backend')
-    return response.json()
+    return fetchApi(`/donations/donor/${donorId}`)
   },
 
   /** Fetch AI recommended matches for a specific organization */
@@ -30,9 +27,7 @@ export const donationService = {
 
   /** Fetch all available donations (for recipients) */
   async getAvailableDonations(): Promise<any[]> {
-    const response = await fetch(`${API_BASE_URL}/donations/available`)
-    if (!response.ok) throw new Error('Failed to fetch available donations from Python backend')
-    return response.json()
+    return fetchApi('/donations/available')
   },
 
   /** Fetch a specific donation with its images */
@@ -53,15 +48,10 @@ export const donationService = {
 
   /** Create a new donation */
   async createDonation(donation: DonationInsert): Promise<Donation> {
-    const response = await fetch(`${API_BASE_URL}/donations/`, {
+    return fetchApi('/donations/', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(donation)
     })
-    if (!response.ok) throw new Error('Failed to create donation via Python backend')
-    return response.json()
   },
 
   /** Upload an image to the donation-images bucket */

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { fetchApi } from '@/lib/api'
 
 export type RatingCategory = 'FOOD_QUALITY' | 'PICKUP_EXPERIENCE' | 'DELIVERY_EXPERIENCE' | 'QUANTITY_ACCURACY'
 
@@ -14,22 +15,16 @@ export interface RatingInput {
 export const ratingService = {
   /** Submit a new rating */
   async submitRating(input: RatingInput) {
-    const { error } = await supabase
-      .from('ratings')
-      .insert({
+    return fetchApi('/ratings/', {
+      method: 'POST',
+      body: JSON.stringify({
         delivery_id: input.delivery_id,
-        reviewer_id: input.reviewer_id,
-        reviewed_user_id: input.reviewed_user_id,
+        target_user_id: input.reviewed_user_id,
         rating: input.rating,
-        category: input.category,
-        comments: input.comments || null
+        feedback: input.comments || '',
+        role_of_rater: 'UNKNOWN' // We might need to adjust the backend if the frontend doesn't supply this
       })
-
-    if (error) {
-      throw new Error('Failed to submit rating: ' + error.message)
-    }
-
-    return true
+    })
   },
 
   /** Check if user has already rated a specific delivery */

@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
+from auth import verify_user, User
 
 router = APIRouter(
     prefix="/api/matches",
@@ -14,7 +15,7 @@ class AcceptDonationReq(BaseModel):
     recipient_org_id: str
 
 @router.post("/accept")
-def accept_donation(req: AcceptDonationReq, db: Session = Depends(get_db)):
+def accept_donation(req: AcceptDonationReq, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Manually accept a donation from the Browse page (calls Supabase RPC)."""
     query = text("""
         SELECT accept_donation(:donation_id, :org_id)
@@ -28,7 +29,7 @@ def accept_donation(req: AcceptDonationReq, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/generate/{donation_id}")
-def generate_matches(donation_id: str, db: Session = Depends(get_db)):
+def generate_matches(donation_id: str, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """AI Proactive Matching - Generates matches for a donation (calls Supabase RPC)."""
     query = text("""
         SELECT generate_matches_for_donation(:donation_id) as generated_count
@@ -42,7 +43,7 @@ def generate_matches(donation_id: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.get("/donation/{donation_id}")
-def get_matches_for_donation(donation_id: str, db: Session = Depends(get_db)):
+def get_matches_for_donation(donation_id: str, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Get matches for a specific donation."""
     query = text("""
         SELECT m.*, 
@@ -56,7 +57,7 @@ def get_matches_for_donation(donation_id: str, db: Session = Depends(get_db)):
     return result
 
 @router.get("/recipient/{org_id}")
-def get_matches_for_recipient(org_id: str, db: Session = Depends(get_db)):
+def get_matches_for_recipient(org_id: str, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Get pending matches for a specific recipient organization."""
     query = text("""
         SELECT m.*, 

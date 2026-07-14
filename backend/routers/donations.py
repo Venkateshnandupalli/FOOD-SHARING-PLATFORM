@@ -4,6 +4,7 @@ from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
+from auth import verify_user, User
 
 router = APIRouter(
     prefix="/api/donations",
@@ -25,7 +26,7 @@ class DonationCreate(BaseModel):
     packaging_status: str
 
 @router.get("/donor/{donor_id}")
-def get_donor_donations(donor_id: str, db: Session = Depends(get_db)):
+def get_donor_donations(donor_id: str, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Fetch all donations created by a specific donor."""
     query = text("""
         SELECT * FROM donations
@@ -36,7 +37,7 @@ def get_donor_donations(donor_id: str, db: Session = Depends(get_db)):
     return result
 
 @router.get("/available")
-def get_available_donations(db: Session = Depends(get_db)):
+def get_available_donations(db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Fetch all available donations (For recipients)."""
     query = text("""
         SELECT d.*, 
@@ -50,7 +51,7 @@ def get_available_donations(db: Session = Depends(get_db)):
     return result
 
 @router.post("/")
-def create_donation(donation: DonationCreate, db: Session = Depends(get_db)):
+def create_donation(donation: DonationCreate, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Create a new donation."""
     query = text("""
         INSERT INTO donations (
@@ -73,7 +74,7 @@ def create_donation(donation: DonationCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.patch("/{donation_id}/status")
-def update_donation_status(donation_id: str, status: str, db: Session = Depends(get_db)):
+def update_donation_status(donation_id: str, status: str, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Update the status of a donation."""
     query = text("""
         UPDATE donations 

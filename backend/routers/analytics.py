@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from database import get_db
+from auth import verify_user, User
 
 router = APIRouter(
     prefix="/api/analytics",
@@ -9,7 +10,7 @@ router = APIRouter(
 )
 
 @router.get("/impact")
-def get_impact_metrics(db: Session = Depends(get_db)):
+def get_impact_metrics(db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Fetch global impact metrics from the Postgres RPC."""
     try:
         # We can execute the Supabase RPC function directly via SQLAlchemy
@@ -28,7 +29,7 @@ def get_impact_metrics(db: Session = Depends(get_db)):
 
 
 @router.get("/demand-forecast")
-def get_demand_forecast(db: Session = Depends(get_db)):
+def get_demand_forecast(db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Fetch the ML demand forecast hotspots."""
     try:
         result = db.execute(text("SELECT * FROM get_demand_forecast()")).scalar()
@@ -38,7 +39,7 @@ def get_demand_forecast(db: Session = Depends(get_db)):
 
 
 @router.get("/donation-trends")
-def get_donation_trends(db: Session = Depends(get_db)):
+def get_donation_trends(db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
     """Fetch trailing 7-day donation trends."""
     try:
         result = db.execute(text("SELECT * FROM get_donation_trends()")).scalar()
