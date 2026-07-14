@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import {
   Package, TrendingUp, Clock, CheckCircle,
-  PlusCircle, ArrowRight, Leaf, AlertCircle
+  Plus, ArrowRight, Leaf, AlertCircle, Users, Heart, Star
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { StatCard, Card, Badge, Button, EmptyState, ProgressBar } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { donationService } from '@/services/donationService'
+import { deliveryService } from '@/services/deliveryService'
+import { RatingModal } from '@/components/RatingModal'
 import { urgencyLabel, formatDate } from '@/lib/utils'
 
 // ─── Mock data (replaced by API data in Phase 2) ──────────────────────────────
@@ -35,6 +37,13 @@ export default function DonorDashboard() {
 
   const [recentDonations, setRecentDonations] = useState<any[]>(MOCK_DONATIONS)
   const [activeCount, setActiveCount] = useState(3)
+  const [deliveries, setDeliveries] = useState<any[]>([])
+  const [ratingTarget, setRatingTarget] = useState<{
+    deliveryId: string, 
+    reviewedUserId: string, 
+    reviewedUserName: string,
+    defaultCategory: 'FOOD_QUALITY' | 'DELIVERY_EXPERIENCE'
+  } | null>(null)
 
   useEffect(() => {
     async function fetchDashboard() {
@@ -43,10 +52,14 @@ export default function DonorDashboard() {
         return // stick to mock
       }
       try {
-        const data = await donationService.getDonorDonations(profile.id)
-        const active = data.filter(d => d.status === 'AVAILABLE' || d.status === 'MATCHED')
+        const [donationsData, deliveriesData] = await Promise.all([
+          donationService.getDonorDonations(profile.id),
+          deliveryService.getDeliveriesForDonor(profile.id)
+        ])
+        const active = donationsData.filter(d => d.status === 'AVAILABLE' || d.status === 'MATCHED')
         setActiveCount(active.length)
-        setRecentDonations(data.slice(0, 4))
+        setRecentDonations(donationsData.slice(0, 4))
+        setDeliveries(deliveriesData || [])
       } catch (err) {
         console.error('Dashboard load failed:', err)
       }
@@ -71,7 +84,7 @@ export default function DonorDashboard() {
           </p>
         </div>
         <Link to="/donor/create">
-          <Button variant="primary" leftIcon={<PlusCircle className="w-4 h-4" />}>
+          <Button variant="primary" leftIcon={<Plus className="w-4 h-4" />}>
             Create Donation
           </Button>
         </Link>
@@ -189,6 +202,84 @@ export default function DonorDashboard() {
           </table>
         </div>
       </Card>
+
+      {/* ── Recent Deliveries ── */}
+      {deliveries.length > 0 && (
+        <div className="pt-6 border-t border-gray-100">
+          <h2 className="text-xl font-bold text-[hsl(220,15%,15%)] mb-6">Recent Deliveries</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {deliveries.map((del) => {
+              const d = del.match?.donation
+              const r = del.match?.recipient
+              const isCompleted = del.status === 'DELIVERED'
+              if (!d || !r) return null
+
+              return (
+                <Card key={del.id} className="p-5 flex flex-col hover:border-primary transition-colors">
+                  <div className="flex justify-between items-start mb-4">
+                    <Badge variant={isCompleted ? 'default' : 'success'} className="bg-[hsl(25,95%,95%)] text-[hsl(25,95%,53%)]">
+                      {del.status.replace(/_/g, ' ')}
+                    </Badge>
+                  </div>
+                  
+                  <h3 className="font-semibold text-[hsl(220,15%,15%)] mb-2">{d.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{d.quantity} {d.quantity_unit} • {d.food_category.replace(/_/g, ' ')}</p>
+
+                  <div className="text-sm text-gray-500 mb-4">
+                    <p><strong>To:</strong> {r.organization_name}</p>
+                  </div>
+
+                  {isCompleted && (
+                    <div className="mt-auto pt-4 border-t border-gray-100 flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        fullWidth
+                        onClick={() => setRatingTarget({
+                          deliveryId: del.id,
+                          reviewedUserId: r.owner_id,
+                          reviewedUserName: r.organization_name,
+                          defaultCategory: 'FOOD_QUALITY'
+                        })}
+                      >
+                        Rate Recipient
+                      </Button>
+                      {del.volunteer_id && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          fullWidth
+                          onClick={() => setRatingTarget({
+                            deliveryId: del.id,
+                            reviewedUserId: del.volunteer_id,
+                            reviewedUserName: 'Volunteer',
+                            defaultCategory: 'DELIVERY_EXPERIENCE'
+                          })}
+                        >
+                          Rate Volunteer
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Rating Modal */}
+      {ratingTarget && profile && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          onClose={() => setRatingTarget(null)}
+          deliveryId={ratingTarget.deliveryId}
+          reviewerId={profile.id}
+          reviewedUserId={ratingTarget.reviewedUserId}
+          reviewedUserName={ratingTarget.reviewedUserName}
+          defaultCategory={ratingTarget.defaultCategory}
+        />
+      )}
 
       {/* ── Impact This Month ── */}
       <div className="grid md:grid-cols-3 gap-4">

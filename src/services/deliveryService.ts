@@ -58,6 +58,45 @@ export const deliveryService = {
     return data
   },
 
+  /** Fetch deliveries for a donor */
+  async getDeliveriesForDonor(donorId: string) {
+    const { data, error } = await supabase
+      .from('deliveries')
+      .select(`
+        *,
+        match:matches!inner(
+          *,
+          donation:donations!inner(*),
+          recipient:organizations(*)
+        )
+      `)
+      .eq('match.donation.donor_id', donorId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data
+  },
+
+  /** Fetch deliveries for a recipient organization */
+  async getDeliveriesForRecipient(orgId: string) {
+    const { data, error } = await supabase
+      .from('deliveries')
+      .select(`
+        *,
+        match:matches!inner(
+          *,
+          donation:donations(*),
+          recipient:organizations!inner(*)
+        ),
+        volunteer:profiles!volunteer_id(*)
+      `)
+      .eq('match.recipient_organization_id', orgId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data
+  },
+
   /** Update delivery status */
   async updateStatus(deliveryId: string, status: 'EN_ROUTE_PICKUP' | 'COLLECTED' | 'EN_ROUTE_DELIVERY' | 'DELIVERED', proofUrl?: string) {
     const updates: any = { status }

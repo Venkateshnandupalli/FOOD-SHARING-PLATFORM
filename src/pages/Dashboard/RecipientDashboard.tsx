@@ -7,6 +7,8 @@ import { useAuthStore } from '@/store/authStore'
 import { organizationService } from '@/services/organizationService'
 import { donationService } from '@/services/donationService'
 import { matchService } from '@/services/matchService'
+import { deliveryService } from '@/services/deliveryService'
+import { RatingModal } from '@/components/RatingModal'
 import { urgencyLabel } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
@@ -17,7 +19,14 @@ export default function RecipientDashboard() {
   const [isLoading, setIsLoading] = useState(true)
   const [org, setOrg] = useState<any>(null)
   const [matches, setMatches] = useState<any[]>([])
+  const [deliveries, setDeliveries] = useState<any[]>([])
   const [claimingId, setClaimingId] = useState<string | null>(null)
+  const [ratingTarget, setRatingTarget] = useState<{
+    deliveryId: string, 
+    reviewedUserId: string, 
+    reviewedUserName: string,
+    defaultCategory: 'FOOD_QUALITY' | 'DELIVERY_EXPERIENCE'
+  } | null>(null)
   const [stats, setStats] = useState({
     activeDeliveries: 0,
     totalMealsClaimed: 0,
@@ -32,12 +41,14 @@ export default function RecipientDashboard() {
       setOrg(organization)
       
       if (organization && organization.verification_status === 'APPROVED') {
-        const [pendingMatches, orgStats] = await Promise.all([
+        const [pendingMatches, orgStats, orgDeliveries] = await Promise.all([
           matchService.getMatchesForRecipient(organization.id),
-          organizationService.getOrganizationStats(organization.id)
+          organizationService.getOrganizationStats(organization.id),
+          deliveryService.getDeliveriesForRecipient(organization.id)
         ])
         setMatches(pendingMatches || [])
         setStats(orgStats)
+        setDeliveries(orgDeliveries || [])
       }
     } catch (e: any) {
       toast.error(e.message)
@@ -219,6 +230,66 @@ export default function RecipientDashboard() {
         )}
       </div>
 
+      {/* ── Recent Deliveries ── */}
+      {deliveries.length > 0 && (
+        <div className="pt-6 border-t border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Recent Deliveries</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {deliveries.map((del) => {
+              const d = del.match?.donation
+              const isCompleted = del.status === 'DELIVERED'
+              if (!d) return null
+
+              return (
+                <Card key={del.id} className="p-5 flex flex-col hover:border-[hsl(25,95%,53%)] transition-colors">
+                  <div className="flex justify-between items-start mb-4">
+                    <Badge variant={isCompleted ? 'default' : 'success'} className="bg-[hsl(25,95%,95%)] text-[hsl(25,95%,53%)]">
+                      {del.status.replace(/_/g, ' ')}
+                    </Badge>
+                  </div>
+                  
+                  <h3 className="font-semibold text-gray-900 mb-2">{d.title}</h3>
+                  <p className="text-sm text-gray-600 mb-4">{d.quantity} {d.quantity_unit} • {d.food_category.replace(/_/g, ' ')}</p>
+
+                  {isCompleted && (
+                    <div className="mt-auto pt-4 border-t border-gray-100 flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        fullWidth
+                        onClick={() => setRatingTarget({
+                          deliveryId: del.id,
+                          reviewedUserId: d.donor_id,
+                          reviewedUserName: 'Donor',
+                          defaultCategory: 'FOOD_QUALITY'
+                        })}
+                      >
+                        Rate Donor
+                      </Button>
+                      {del.volunteer && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          fullWidth
+                          onClick={() => setRatingTarget({
+                            deliveryId: del.id,
+                            reviewedUserId: del.volunteer.id,
+                            reviewedUserName: del.volunteer.full_name,
+                            defaultCategory: 'DELIVERY_EXPERIENCE'
+                          })}
+                        >
+                          Rate Volunteer
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </Card>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
       {/* ── Quick Links ── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
         <Card className="p-6 flex flex-col justify-between items-start bg-primary/5 border-primary/20">
@@ -256,6 +327,19 @@ export default function RecipientDashboard() {
           color="green"
         />
       </div>
+
+      {/* Rating Modal */}
+      {ratingTarget && profile && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          onClose={() => setRatingTarget(null)}
+          deliveryId={ratingTarget.deliveryId}
+          reviewerId={profile.id}
+          reviewedUserId={ratingTarget.reviewedUserId}
+          reviewedUserName={ratingTarget.reviewedUserName}
+          defaultCategory={ratingTarget.defaultCategory}
+        />
+      )}
     </div>
   )
 }

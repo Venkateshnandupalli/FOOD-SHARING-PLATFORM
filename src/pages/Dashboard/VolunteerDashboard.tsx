@@ -5,6 +5,7 @@ import { useAuthStore } from '@/store/authStore'
 import { deliveryService } from '@/services/deliveryService'
 import type { AvailableDelivery } from '@/services/deliveryService'
 import DeliveryMap from '@/components/map/DeliveryMap'
+import { RatingModal } from '@/components/RatingModal'
 import toast from 'react-hot-toast'
 
 export default function VolunteerDashboard() {
@@ -17,6 +18,12 @@ export default function VolunteerDashboard() {
   const [claimingId, setClaimingId] = useState<string | null>(null)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [proofFile, setProofFile] = useState<{ [key: string]: File }>({})
+  const [ratingTarget, setRatingTarget] = useState<{
+    deliveryId: string, 
+    reviewedUserId: string, 
+    reviewedUserName: string,
+    defaultCategory: 'PICKUP_EXPERIENCE' | 'DELIVERY_EXPERIENCE'
+  } | null>(null)
 
   const loadData = async () => {
     if (!profile) return
@@ -270,8 +277,38 @@ export default function VolunteerDashboard() {
                     </div>
                   )}
                   {isCompleted && (
-                    <div className="flex items-center justify-center text-[hsl(142,71%,28%)] font-medium gap-2 py-2">
-                      <CheckCircle className="w-5 h-5" /> Delivery Completed
+                    <div className="flex flex-col gap-3 pt-2">
+                      <div className="flex items-center justify-center text-[hsl(142,71%,28%)] font-medium gap-2 py-2">
+                        <CheckCircle className="w-5 h-5" /> Delivery Completed
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          fullWidth
+                          onClick={() => setRatingTarget({
+                            deliveryId: del.id,
+                            reviewedUserId: d.donor_id,
+                            reviewedUserName: 'Donor',
+                            defaultCategory: 'PICKUP_EXPERIENCE'
+                          })}
+                        >
+                          Rate Pickup
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          fullWidth
+                          onClick={() => setRatingTarget({
+                            deliveryId: del.id,
+                            reviewedUserId: r.owner_id, // Organization owner is the recipient user
+                            reviewedUserName: r.organization_name,
+                            defaultCategory: 'DELIVERY_EXPERIENCE'
+                          })}
+                        >
+                          Rate Drop-off
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </Card>
@@ -279,6 +316,19 @@ export default function VolunteerDashboard() {
             })
           )}
         </div>
+      )}
+
+      {/* Rating Modal */}
+      {ratingTarget && profile && (
+        <RatingModal
+          isOpen={!!ratingTarget}
+          onClose={() => setRatingTarget(null)}
+          deliveryId={ratingTarget.deliveryId}
+          reviewerId={profile.id}
+          reviewedUserId={ratingTarget.reviewedUserId}
+          reviewedUserName={ratingTarget.reviewedUserName}
+          defaultCategory={ratingTarget.defaultCategory}
+        />
       )}
     </div>
   )

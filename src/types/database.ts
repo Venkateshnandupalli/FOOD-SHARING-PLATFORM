@@ -66,6 +66,8 @@ export interface Profile {
   phone: string | null
   role: UserRole
   profile_image_url: string | null
+  trust_score: number
+  total_ratings: number
   is_active: boolean
   created_at: string
   updated_at: string
