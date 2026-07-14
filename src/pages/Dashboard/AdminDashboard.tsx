@@ -3,24 +3,38 @@ import { Users, Building2, PackageCheck, Truck, ShieldCheck, XCircle, CheckCircl
 import { Card, Badge, Button, EmptyState, Spinner } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { adminService } from '@/services/adminService'
+import { analyticsService } from '@/services/analyticsService'
+import type { ImpactMetrics, DemandForecast, TrendData } from '@/services/analyticsService'
+import { DonationTrendChart } from '@/components/charts/DonationTrendChart'
+import { DemandPieChart } from '@/components/charts/DemandPieChart'
+import { CloudRain, Activity, TrendingUp } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function AdminDashboard() {
   const { profile } = useAuthStore()
   
   const [metrics, setMetrics] = useState<any>(null)
+  const [impact, setImpact] = useState<ImpactMetrics | null>(null)
+  const [forecast, setForecast] = useState<DemandForecast[]>([])
+  const [trends, setTrends] = useState<TrendData[]>([])
   const [pendingOrgs, setPendingOrgs] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [updatingId, setUpdatingId] = useState<string | null>(null)
 
   const loadData = async () => {
     try {
-      const [sysMetrics, orgs] = await Promise.all([
+      const [sysMetrics, orgs, imp, fcast, trnd] = await Promise.all([
         adminService.getSystemMetrics(),
-        adminService.getPendingOrganizations()
+        adminService.getPendingOrganizations(),
+        analyticsService.getImpactMetrics(),
+        analyticsService.getDemandForecast(),
+        analyticsService.getDonationTrends()
       ])
       setMetrics(sysMetrics)
       setPendingOrgs(orgs)
+      setImpact(imp)
+      setForecast(fcast)
+      setTrends(trnd)
     } catch (err: any) {
       toast.error('Failed to load admin data: ' + err.message)
     } finally {
@@ -54,10 +68,10 @@ export default function AdminDashboard() {
   }
 
   const statCards = [
-    { label: 'Total Verified NGOs', value: metrics?.totalApprovedOrgs || 0, icon: Building2, color: 'text-blue-600', bg: 'bg-blue-100' },
-    { label: 'Registered Users', value: metrics?.totalUsers || 0, icon: Users, color: 'text-purple-600', bg: 'bg-purple-100' },
-    { label: 'Total Donations', value: metrics?.totalDonations || 0, icon: PackageCheck, color: 'text-green-600', bg: 'bg-green-100' },
-    { label: 'Completed Deliveries', value: metrics?.successfulDeliveries || 0, icon: Truck, color: 'text-orange-600', bg: 'bg-orange-100' },
+    { label: 'CO2 Prevented', value: `${impact?.co2PreventedKg || 0} kg`, icon: CloudRain, color: 'text-emerald-600', bg: 'bg-emerald-100' },
+    { label: 'Total Meals Delivered', value: impact?.totalMeals || 0, icon: PackageCheck, color: 'text-amber-600', bg: 'bg-amber-100' },
+    { label: 'Water Saved', value: `${impact?.waterSavedLiters || 0} L`, icon: Activity, color: 'text-cyan-600', bg: 'bg-cyan-100' },
+    { label: 'Verified Orgs', value: impact?.verifiedOrgs || 0, icon: Building2, color: 'text-indigo-600', bg: 'bg-indigo-100' },
   ]
 
   return (
@@ -80,6 +94,42 @@ export default function AdminDashboard() {
             </div>
           </Card>
         ))}
+      </div>
+
+      {/* Analytics & Predictive Forecast */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="p-6 col-span-2">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Donation Volume Trends</h2>
+              <p className="text-sm text-gray-500">Trailing 7-day donation submissions</p>
+            </div>
+            <TrendingUp className="w-5 h-5 text-gray-400" />
+          </div>
+          <div className="h-64">
+            <DonationTrendChart data={trends} />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-gray-900">ML Demand Forecast</h2>
+            <p className="text-sm text-gray-500">Predicted hotspots based on recipient requirements vs available supply</p>
+          </div>
+          <div className="h-48 mb-4">
+            <DemandPieChart data={forecast} />
+          </div>
+          <div className="space-y-3">
+            {forecast.slice(0, 3).map((f, i) => (
+              <div key={i} className="flex items-center justify-between text-sm">
+                <span className="font-medium text-gray-700">{f.food_category.replace(/_/g, ' ')}</span>
+                <Badge variant={f.demand_score > 10 ? 'danger' : f.demand_score > 5 ? 'warning' : 'info'}>
+                  Score: {Math.round(f.demand_score * 10) / 10}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
 
       {/* Verification Queue */}
