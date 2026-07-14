@@ -32,11 +32,11 @@ export default function RecipientDashboard() {
       setOrg(organization)
       
       if (organization && organization.verification_status === 'APPROVED') {
-        const [recommended, orgStats] = await Promise.all([
-          donationService.getRecommendedMatches(organization.id),
+        const [pendingMatches, orgStats] = await Promise.all([
+          matchService.getMatchesForRecipient(organization.id),
           organizationService.getOrganizationStats(organization.id)
         ])
-        setMatches(recommended || [])
+        setMatches(pendingMatches || [])
         setStats(orgStats)
       }
     } catch (e: any) {
@@ -55,12 +55,23 @@ export default function RecipientDashboard() {
     setClaimingId(donationId)
     try {
       await matchService.acceptDonation(donationId, org.id)
-      toast.success('Donation accepted successfully!')
+      import('react-hot-toast').then(m => m.default.success('Donation accepted successfully!'))
       await loadData()
     } catch (err: any) {
-      toast.error('Failed to accept: ' + err.message)
+      import('react-hot-toast').then(m => m.default.error('Failed to accept: ' + err.message))
     } finally {
       setClaimingId(null)
+    }
+  }
+
+  const handleReject = async (matchId: string) => {
+    if (!org) return
+    try {
+      await matchService.rejectMatch(matchId, org.id)
+      import('react-hot-toast').then(m => m.default.success('Match declined.'))
+      await loadData()
+    } catch (err: any) {
+      import('react-hot-toast').then(m => m.default.error('Failed to decline: ' + err.message))
     }
   }
 
@@ -126,8 +137,9 @@ export default function RecipientDashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {matches.map((match) => {
+              const donation = match.donations
               // Convert match score to percentage (0 to 100)
-              const scorePercent = Math.round(Number(match.match_score))
+              const scorePercent = Math.round(Number(match.total_match_score) * 100)
               
               // Determine badge color based on score
               let badgeVariant: 'success' | 'warning' | 'default' = 'success'
@@ -135,10 +147,10 @@ export default function RecipientDashboard() {
               if (scorePercent < 50) badgeVariant = 'default'
 
               // Expiry urgency
-              const { label: urgLabel, color: urgColor } = urgencyLabel(match.use_before)
+              const { label: urgLabel, color: urgColor } = urgencyLabel(donation.use_before)
 
               return (
-                <Card key={match.donation_id} className="flex flex-col hover:border-[hsl(25,95%,53%)] transition-colors overflow-hidden group">
+                <Card key={match.id} className="flex flex-col hover:border-[hsl(25,95%,53%)] transition-colors overflow-hidden group">
                   <div className="p-5 flex-1 flex flex-col">
                     {/* Header */}
                     <div className="flex justify-between items-start mb-4">
@@ -150,51 +162,59 @@ export default function RecipientDashboard() {
                       </span>
                     </div>
 
-                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-[hsl(25,95%,53%)] transition-colors">
-                      {match.title}
+                    {/* Content */}
+                    <h3 className="font-bold text-lg text-gray-900 mb-2 leading-tight">
+                      {donation.title}
                     </h3>
-
-                    <div className="space-y-2 mb-6 flex-1">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Package className="w-4 h-4 mr-2 text-gray-400" />
-                        <span className="font-medium text-gray-900 mr-1">{Number(match.quantity)} {match.quantity_unit}</span>
-                        ({match.food_category.replace(/_/g, ' ')})
-                      </div>
-                      
-                      <div className="flex items-start text-sm text-gray-600">
-                        <MapPin className="w-4 h-4 mr-2 text-gray-400 shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">
-                          <span className="font-medium">{match.distance_km.toFixed(1)} km away</span><br/>
-                          <span className="text-xs text-gray-500">{match.pickup_address}</span>
-                        </span>
-                      </div>
+                    <div className="space-y-2 mb-4 flex-1">
+                      <p className="text-sm text-gray-600 flex items-center gap-2">
+                        <Package className="w-4 h-4 text-[hsl(25,95%,53%)]" />
+                        {donation.quantity} {donation.quantity_unit} • {donation.food_category.replace(/_/g, ' ')}
+                      </p>
+                      <p className="text-sm text-gray-600 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-[hsl(25,95%,53%)]" />
+                        {match.distance_km ? `${Number(match.distance_km).toFixed(1)} km away` : 'Location provided'}
+                      </p>
+                      <p className="text-sm text-gray-600 flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-[hsl(25,95%,53%)]" />
+                        Expires {new Date(match.expires_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                      </p>
                     </div>
 
-                    {/* Progress Bar (Visual indicator of score) */}
-                    <div className="mb-6">
-                      <div className="flex justify-between text-xs text-gray-500 mb-1.5 font-medium">
-                        <span>Match Quality</span>
-                        <span>{scorePercent}/100</span>
+                    {/* Explanations */}
+                    {match.score_explanation && (
+                      <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg mb-4 space-y-1">
+                        {Object.values(match.score_explanation).map((v: any, i) => (
+                          <div key={i}>• {v}</div>
+                        ))}
                       </div>
-                      <ProgressBar 
-                        value={scorePercent} 
-                        color={scorePercent > 75 ? 'green' : 'orange'} 
-                        height="sm" 
-                      />
-                    </div>
+                    )}
+                  </div>
 
-                    {/* Action */}
+                  {/* Actions */}
+                  <div className="bg-gray-50 border-t border-gray-100 p-4 flex gap-2">
                     <Button 
-                      className="w-full shadow-sm hover:shadow-md transition-shadow" 
-                      onClick={() => handleAccept(match.donation_id)}
+                      variant="primary" 
+                      fullWidth 
+                      className="bg-[hsl(25,95%,53%)] hover:bg-[hsl(25,95%,45%)] flex-1"
+                      rightIcon={<CheckCircle className="w-4 h-4" />}
                       isLoading={claimingId === match.donation_id}
+                      onClick={() => handleAccept(match.donation_id)}
                     >
-                      Accept Donation
+                      Accept
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleReject(match.id)}
+                    >
+                      Decline
                     </Button>
                   </div>
                 </Card>
               )
             })}
+          </div>
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ import {
 import { Button, Card, Badge, Spinner } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { donationService } from '@/services/donationService'
+import { matchService } from '@/services/matchService'
 import type { Database } from '@/types/database'
 import { urgencyLabel } from '@/lib/utils'
 
@@ -23,6 +24,8 @@ export default function DonationDetail() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [isCancelling, setIsCancelling] = useState(false)
+  const [matches, setMatches] = useState<any[]>([])
+  const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -52,6 +55,14 @@ export default function DonationDetail() {
         const data = await donationService.getDonationById(id)
         setDonation(data.donation)
         setImages(data.images)
+        
+        try {
+          const matchData = await matchService.getMatchesForDonation(id)
+          setMatches(matchData)
+        } catch (matchErr) {
+          console.error("Failed to load matches", matchErr)
+        }
+        
       } catch (err: any) {
         setError('Donation not found or access denied.')
       } finally {
@@ -76,6 +87,23 @@ export default function DonationDetail() {
       alert('Failed to cancel donation.')
     } finally {
       setIsCancelling(false)
+    }
+  }
+
+  const handleGenerateMatches = async () => {
+    if (!donation) return
+    setIsGenerating(true)
+    try {
+      await matchService.generateMatches(donation.id)
+      import('react-hot-toast').then(m => m.default.success('Matches generated successfully!'))
+      // Refresh matches
+      const matchData = await matchService.getMatchesForDonation(donation.id)
+      setMatches(matchData)
+    } catch (err: any) {
+      console.error(err)
+      import('react-hot-toast').then(m => m.default.error(err.message || 'Failed to generate matches'))
+    } finally {
+      setIsGenerating(false)
     }
   }
 
@@ -171,6 +199,53 @@ export default function DonationDetail() {
                 </div>
               )}
             </div>
+          </Card>
+
+          {/* AI Matches Section */}
+          <Card className="mt-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-[hsl(220,15%,15%)]">AI Match Recommendations</h3>
+              {isActive && (
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  onClick={handleGenerateMatches}
+                  isLoading={isGenerating}
+                >
+                  Find Matches
+                </Button>
+              )}
+            </div>
+            
+            {matches.length === 0 ? (
+              <div className="text-center py-6 bg-[hsl(220,13%,98%)] rounded-xl border border-dashed border-[hsl(220,13%,91%)]">
+                <Info className="w-8 h-8 text-[hsl(220,10%,80%)] mx-auto mb-2" />
+                <p className="text-sm text-[hsl(220,10%,52%)]">No active matches found. Click "Find Matches" to run the AI engine.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {matches.map(match => (
+                  <div key={match.id} className="p-4 rounded-xl border border-[hsl(220,13%,91%)] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h4 className="font-bold text-[hsl(220,15%,20%)]">{match.organizations?.organization_name}</h4>
+                        <Badge variant={match.match_status === 'ACCEPTED' ? 'success' : match.match_status === 'PENDING' ? 'warning' : 'default'}>
+                          {match.match_status}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-[hsl(220,10%,52%)]">Match Score: {Math.round(match.total_match_score * 100)}%</p>
+                    </div>
+                    {match.score_explanation && (
+                      <div className="text-xs text-[hsl(220,15%,35%)] bg-[hsl(40,20%,97%)] p-2 rounded-lg max-w-xs">
+                        {Object.values(match.score_explanation).map((v: any, i) => (
+                          <div key={i}>• {v}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </Card>
         </div>
 
