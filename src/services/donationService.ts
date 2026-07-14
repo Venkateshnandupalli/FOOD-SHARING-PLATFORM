@@ -6,19 +6,16 @@ type DonationInsert = Database['public']['Tables']['donations']['Insert']
 type DonationUpdate = Database['public']['Tables']['donations']['Update']
 type DonationImage = Database['public']['Tables']['donation_images']['Row']
 
+const API_BASE_URL = 'http://localhost:8000/api'
+
 export const donationService = {
   // ─── Fetching ───────────────────────────────────────────────────────────────
   
   /** Fetch all donations created by a specific donor */
   async getDonorDonations(donorId: string): Promise<Donation[]> {
-    const { data, error } = await supabase
-      .from('donations')
-      .select('*')
-      .eq('donor_id', donorId)
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
+    const response = await fetch(`${API_BASE_URL}/donations/donor/${donorId}`)
+    if (!response.ok) throw new Error('Failed to fetch donor donations from Python backend')
+    return response.json()
   },
 
   /** Fetch AI recommended matches for a specific organization */
@@ -33,18 +30,9 @@ export const donationService = {
 
   /** Fetch all available donations (for recipients) */
   async getAvailableDonations(): Promise<any[]> {
-    const { data, error } = await supabase
-      .from('donations')
-      .select(`
-        *,
-        donation_images (*),
-        profiles!donations_donor_id_fkey (full_name, profile_image_url)
-      `)
-      .eq('status', 'AVAILABLE')
-      .order('created_at', { ascending: false })
-
-    if (error) throw error
-    return data || []
+    const response = await fetch(`${API_BASE_URL}/donations/available`)
+    if (!response.ok) throw new Error('Failed to fetch available donations from Python backend')
+    return response.json()
   },
 
   /** Fetch a specific donation with its images */
@@ -65,14 +53,15 @@ export const donationService = {
 
   /** Create a new donation */
   async createDonation(donation: DonationInsert): Promise<Donation> {
-    const { data, error } = await supabase
-      .from('donations')
-      .insert(donation)
-      .select()
-      .single()
-
-    if (error) throw error
-    return data
+    const response = await fetch(`${API_BASE_URL}/donations/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(donation)
+    })
+    if (!response.ok) throw new Error('Failed to create donation via Python backend')
+    return response.json()
   },
 
   /** Upload an image to the donation-images bucket */

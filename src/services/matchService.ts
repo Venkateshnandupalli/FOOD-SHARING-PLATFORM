@@ -1,18 +1,21 @@
 import { supabase } from '@/lib/supabase'
 
+const API_BASE_URL = 'http://localhost:8000/api'
+
 export const matchService = {
   /**
    * Manually accept a donation from the Browse page.
    * This creates a match and updates the donation status.
    */
   async acceptDonation(donationId: string, recipientOrganizationId: string) {
-    const { error } = await supabase.rpc('accept_donation', {
-      p_donation_id: donationId,
-      p_org_id: recipientOrganizationId
+    const response = await fetch(`${API_BASE_URL}/matches/accept`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ donation_id: donationId, recipient_org_id: recipientOrganizationId })
     })
 
-    if (error) {
-      throw new Error('Failed to accept donation: ' + error.message)
+    if (!response.ok) {
+      throw new Error('Failed to accept donation via Python backend')
     }
 
     return true
@@ -22,56 +25,38 @@ export const matchService = {
    * AI Proactive Matching - Generates matches for a donation
    */
   async generateMatches(donationId: string): Promise<number> {
-    const { data, error } = await supabase.rpc('generate_matches_for_donation', {
-      p_donation_id: donationId
+    const response = await fetch(`${API_BASE_URL}/matches/generate/${donationId}`, {
+      method: 'POST'
     })
 
-    if (error) {
-      throw new Error('Failed to generate matches: ' + error.message)
+    if (!response.ok) {
+      throw new Error('Failed to generate matches via Python backend')
     }
 
-    return data || 0
+    const data = await response.json()
+    return data.generated_count || 0
   },
 
   /**
    * Get matches for a specific donation (for Donor view)
    */
   async getMatchesForDonation(donationId: string) {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(`
-        *,
-        organizations ( organization_name, contact_phone )
-      `)
-      .eq('donation_id', donationId)
-      .order('total_match_score', { ascending: false })
-
-    if (error) {
-      throw new Error('Failed to get matches: ' + error.message)
+    const response = await fetch(`${API_BASE_URL}/matches/donation/${donationId}`)
+    if (!response.ok) {
+      throw new Error('Failed to get matches from Python backend')
     }
-
-    return data || []
+    return response.json()
   },
 
   /**
    * Get pending matches for a specific recipient organization
    */
   async getMatchesForRecipient(orgId: string) {
-    const { data, error } = await supabase
-      .from('matches')
-      .select(`
-        *,
-        donations ( title, food_category, quantity, quantity_unit, use_before, pickup_address )
-      `)
-      .eq('recipient_organization_id', orgId)
-      .eq('match_status', 'PENDING')
-      .order('generated_at', { ascending: false })
-
-    if (error) {
-      throw new Error('Failed to get matches: ' + error.message)
+    const response = await fetch(`${API_BASE_URL}/matches/recipient/${orgId}`)
+    if (!response.ok) {
+      throw new Error('Failed to get matches for recipient from Python backend')
     }
-
-    return data || []
+    return response.json()
   },
 
   /**

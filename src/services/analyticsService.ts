@@ -1,5 +1,3 @@
-import { supabase } from '@/lib/supabase'
-
 export interface ImpactMetrics {
   totalMeals: number
   co2PreventedKg: number
@@ -21,25 +19,28 @@ export interface TrendData {
   donations: number
 }
 
+// Hardcoded for now. In production, this would be an environment variable.
+const API_BASE_URL = 'http://localhost:8000/api'
+
 export const analyticsService = {
-  /** Get Global Impact Metrics */
+  /** Get Global Impact Metrics from Python Backend */
   async getImpactMetrics(): Promise<ImpactMetrics> {
-    const { data, error } = await supabase.rpc('get_impact_metrics')
-    if (error) throw new Error('Failed to fetch impact metrics: ' + error.message)
-    return data as ImpactMetrics
+    const response = await fetch(`${API_BASE_URL}/analytics/impact`)
+    if (!response.ok) throw new Error('Failed to fetch impact metrics from Python backend')
+    return response.json()
   },
 
-  /** Get Demand Forecast hotspots */
+  /** Get Demand Forecast hotspots from Python Backend */
   async getDemandForecast(): Promise<DemandForecast[]> {
-    const { data, error } = await supabase.rpc('get_demand_forecast')
-    if (error) throw new Error('Failed to fetch demand forecast: ' + error.message)
-    return data as DemandForecast[]
+    const response = await fetch(`${API_BASE_URL}/analytics/demand-forecast`)
+    if (!response.ok) throw new Error('Failed to fetch demand forecast from Python backend')
+    return response.json()
   },
 
-  /** Get last 7 days donation trends */
+  /** Get last 7 days donation trends from Python Backend */
   async getDonationTrends(): Promise<TrendData[]> {
-    const { data, error } = await supabase.rpc('get_donation_trends')
-    if (error) throw new Error('Failed to fetch donation trends: ' + error.message)
-    return data as TrendData[]
+    const response = await fetch(`${API_BASE_URL}/analytics/donation-trends`)
+    if (!response.ok) throw new Error('Failed to fetch donation trends from Python backend')
+    return response.json()
   }
 }
