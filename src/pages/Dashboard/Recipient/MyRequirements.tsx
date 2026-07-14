@@ -3,7 +3,7 @@ import { Plus, Trash2, Calendar, Package, AlertCircle } from 'lucide-react'
 import { Button, Card, Input, Select, Textarea, Spinner, Badge } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { organizationService } from '@/services/organizationService'
-import { requirementService, RecipientRequirement } from '@/services/requirementService'
+import { requirementService, type RecipientRequirement } from '@/services/requirementService'
 import toast from 'react-hot-toast'
 
 export default function MyRequirements() {

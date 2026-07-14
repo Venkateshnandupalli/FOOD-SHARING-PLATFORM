@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Star, X } from 'lucide-react'
-import { Button } from './ui/Button'
-import { ratingService, RatingCategory } from '@/services/ratingService'
+import { Button } from './ui'
+import { ratingService, type RatingCategory } from '@/services/ratingService'
 import toast from 'react-hot-toast'
 
 interface RatingModalProps {

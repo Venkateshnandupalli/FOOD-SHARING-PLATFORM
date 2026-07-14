@@ -76,7 +76,9 @@ export const deliveryService = {
   },
 
   /** Update delivery status */
-  async updateDeliveryStatus(deliveryId: string, status: string) {
+  async updateStatus(deliveryId: string, status: string, proofUrl?: string) {
+    // In a full implementation, you'd want to handle proofUrl via Python endpoint too,
+    // but for now we'll just pass the status to match the frontend signature.
     return fetchApi(`/deliveries/${deliveryId}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status })

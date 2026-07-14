@@ -15,22 +15,22 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const buttonBase =
-  'inline-flex items-center justify-center gap-2 font-semibold rounded-[10px] transition-all duration-200 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]'
+  'inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-300 cursor-pointer select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.97]'
 
 const buttonVariants: Record<ButtonVariant, string> = {
   primary: `
-    bg-[hsl(142,71%,28%)] text-white 
-    hover:bg-[hsl(142,71%,22%)] 
+    bg-gradient-to-br from-[hsl(142,71%,28%)] to-[hsl(142,65%,42%)] text-white 
+    hover:from-[hsl(142,75%,22%)] hover:to-[hsl(142,71%,28%)] hover:-translate-y-0.5
     focus-visible:ring-[hsl(142,71%,28%)]
-    shadow-[0_4px_14px_hsla(142,71%,28%,0.35)]
-    hover:shadow-[0_6px_20px_hsla(142,71%,28%,0.45)]
+    shadow-lg shadow-[hsla(142,71%,28%,0.3)]
+    hover:shadow-xl hover:shadow-[hsla(142,71%,28%,0.45)]
   `,
   secondary: `
-    bg-[hsl(25,95%,53%)] text-white 
-    hover:bg-[hsl(25,90%,44%)]
+    bg-gradient-to-br from-[hsl(25,95%,53%)] to-[hsl(25,100%,66%)] text-white 
+    hover:from-[hsl(25,90%,44%)] hover:to-[hsl(25,95%,53%)] hover:-translate-y-0.5
     focus-visible:ring-[hsl(25,95%,53%)]
-    shadow-[0_4px_14px_hsla(25,95%,53%,0.35)]
-    hover:shadow-[0_6px_20px_hsla(25,95%,53%,0.45)]
+    shadow-lg shadow-[hsla(25,95%,53%,0.3)]
+    hover:shadow-xl hover:shadow-[hsla(25,95%,53%,0.45)]
   `,
   outline: `
     bg-transparent border-2 border-[hsl(142,71%,28%)] text-[hsl(142,71%,28%)]
@@ -50,16 +50,19 @@ const buttonVariants: Record<ButtonVariant, string> = {
   `,
   success: `
     bg-[hsl(142,70%,35%)] text-white
-    hover:bg-[hsl(142,70%,28%)]
+    bg-gradient-to-br from-[hsl(142,70%,35%)] to-[hsl(142,70%,45%)] text-white
+    hover:from-[hsl(142,70%,28%)] hover:to-[hsl(142,70%,35%)] hover:-translate-y-0.5
     focus-visible:ring-[hsl(142,70%,35%)]
+    shadow-lg shadow-[hsla(142,70%,35%,0.3)]
+    hover:shadow-xl hover:shadow-[hsla(142,70%,35%,0.45)]
   `,
 }
 
 const buttonSizes: Record<ButtonSize, string> = {
-  sm:  'h-8 px-3 text-xs',
-  md:  'h-10 px-5 text-sm',
-  lg:  'h-12 px-7 text-base',
-  xl:  'h-14 px-9 text-lg',
+  sm:  'h-9 px-4 text-xs',
+  md:  'h-11 px-6 text-sm',
+  lg:  'h-12 px-8 text-base',
+  xl:  'h-14 px-10 text-lg',
 }
 
 export function Button({
@@ -109,12 +112,11 @@ export function Card({ hover, glass, padding = 'md', className, children, ...pro
   return (
     <div
       className={cn(
-        'rounded-[16px] border border-[hsl(220,13%,90%)]',
+        'rounded-[20px] border border-gray-100/80',
         glass
-          ? 'bg-white/70 backdrop-blur-xl border-white/50'
-          : 'bg-white',
-        'shadow-[0_1px_3px_rgba(0,0,0,0.06),0_1px_2px_rgba(0,0,0,0.04)]',
-        hover && 'transition-all duration-250 hover:-translate-y-1 hover:shadow-[0_10px_30px_rgba(0,0,0,0.10)]',
+          ? 'bg-white/60 backdrop-blur-2xl border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.04)]'
+          : 'bg-white shadow-[0_4px_24px_rgba(0,0,0,0.03)]',
+        hover && 'transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] hover:border-gray-200/60',
         padMap[padding],
         className
       )}
@@ -188,10 +190,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full h-11 rounded-[10px] border bg-white text-[hsl(220,15%,15%)] text-sm',
-              'border-[hsl(220,13%,88%)] placeholder:text-[hsl(220,10%,65%)]',
-              'transition-all duration-150',
-              'focus:outline-none focus:border-[hsl(142,71%,28%)] focus:ring-2 focus:ring-[hsla(142,71%,28%,0.15)]',
+              'w-full h-12 rounded-xl border bg-white/50 text-[hsl(220,15%,15%)] text-sm',
+              'border-gray-200 placeholder:text-gray-400',
+              'transition-all duration-300',
+              'focus:bg-white focus:outline-none focus:border-[hsl(142,71%,28%)] focus:ring-4 focus:ring-[hsla(142,71%,28%,0.1)]',
               error && 'border-red-400 focus:border-red-500 focus:ring-red-100',
               leftIcon ? 'pl-10 pr-4' : rightIcon ? 'pl-4 pr-10' : 'px-4',
               className
@@ -225,11 +227,11 @@ export const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       <textarea
         ref={ref}
         className={cn(
-          'w-full px-4 py-3 rounded-[10px] border bg-white text-[hsl(220,15%,15%)] text-sm resize-y min-h-[100px]',
-          'border-[hsl(220,13%,88%)] placeholder:text-[hsl(220,10%,65%)]',
-          'transition-all duration-150',
-          'focus:outline-none focus:border-[hsl(142,71%,28%)] focus:ring-2 focus:ring-[hsla(142,71%,28%,0.15)]',
-          error && 'border-red-400',
+          'w-full px-4 py-3.5 rounded-xl border bg-white/50 text-[hsl(220,15%,15%)] text-sm resize-y min-h-[120px]',
+          'border-gray-200 placeholder:text-gray-400',
+          'transition-all duration-300',
+          'focus:bg-white focus:outline-none focus:border-[hsl(142,71%,28%)] focus:ring-4 focus:ring-[hsla(142,71%,28%,0.1)]',
+          error && 'border-red-400 focus:border-red-500 focus:ring-red-100',
           className
         )}
         {...props}
@@ -254,11 +256,11 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
       <select
         ref={ref}
         className={cn(
-          'w-full h-11 px-4 rounded-[10px] border bg-white text-[hsl(220,15%,15%)] text-sm appearance-none cursor-pointer',
-          'border-[hsl(220,13%,88%)]',
-          'transition-all duration-150',
-          'focus:outline-none focus:border-[hsl(142,71%,28%)] focus:ring-2 focus:ring-[hsla(142,71%,28%,0.15)]',
-          error && 'border-red-400',
+          'w-full h-12 px-4 rounded-xl border bg-white/50 text-[hsl(220,15%,15%)] text-sm appearance-none cursor-pointer',
+          'border-gray-200',
+          'transition-all duration-300',
+          'focus:bg-white focus:outline-none focus:border-[hsl(142,71%,28%)] focus:ring-4 focus:ring-[hsla(142,71%,28%,0.1)]',
+          error && 'border-red-400 focus:border-red-500 focus:ring-red-100',
           className
         )}
         {...props}

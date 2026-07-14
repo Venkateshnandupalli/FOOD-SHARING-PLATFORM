@@ -226,7 +226,6 @@ export default function RecipientDashboard() {
               )
             })}
           </div>
-          </div>
         )}
       </div>
 
