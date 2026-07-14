@@ -59,11 +59,14 @@ export const deliveryService = {
   },
 
   /** Update delivery status */
-  async updateStatus(deliveryId: string, status: 'EN_ROUTE_PICKUP' | 'COLLECTED' | 'EN_ROUTE_DELIVERY' | 'DELIVERED') {
+  async updateStatus(deliveryId: string, status: 'EN_ROUTE_PICKUP' | 'COLLECTED' | 'EN_ROUTE_DELIVERY' | 'DELIVERED', proofUrl?: string) {
     const updates: any = { status }
     
     if (status === 'COLLECTED') updates.collected_at = new Date().toISOString()
-    if (status === 'DELIVERED') updates.delivered_at = new Date().toISOString()
+    if (status === 'DELIVERED') {
+      updates.delivered_at = new Date().toISOString()
+      if (proofUrl) updates.delivery_proof_url = proofUrl
+    }
 
     const { error } = await supabase
       .from('deliveries')
@@ -72,5 +75,24 @@ export const deliveryService = {
 
     if (error) throw error
     return true
+  },
+
+  /** Upload delivery proof image */
+  async uploadDeliveryProof(file: File, deliveryId: string): Promise<string> {
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${deliveryId}-${Date.now()}.${fileExt}`
+    const filePath = `proofs/${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('delivery-proofs')
+      .upload(filePath, file)
+
+    if (uploadError) throw uploadError
+
+    const { data } = supabase.storage
+      .from('delivery-proofs')
+      .getPublicUrl(filePath)
+
+    return data.publicUrl
   }
 }
