@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { MapPin, Heart, Package, Clock, ArrowRight, CheckCircle, Star } from 'lucide-react'
 import { Link, Navigate } from 'react-router-dom'
 import { StatCard, Card, Badge, Button, ProgressBar, Spinner, EmptyState } from '@/components/ui'
+import { Plus } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { organizationService } from '@/services/organizationService'
 import { donationService } from '@/services/donationService'
@@ -196,6 +197,22 @@ export default function RecipientDashboard() {
             })}
           </div>
         )}
+      </div>
+
+      {/* ── Quick Links ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
+        <Card className="p-6 flex flex-col justify-between items-start bg-primary/5 border-primary/20">
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Publish Your Needs</h3>
+            <p className="text-gray-600 text-sm mb-4">Let donors know what food you need so we can match you faster.</p>
+          </div>
+          <Link to="/recipient/requirements">
+            <Button variant="primary" size="sm" className="shadow-sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Manage Requirements
+            </Button>
+          </Link>
+        </Card>
       </div>
 
       {/* ── Impact Overview ── */}
