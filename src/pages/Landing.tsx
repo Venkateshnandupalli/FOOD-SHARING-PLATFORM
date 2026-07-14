@@ -342,7 +342,7 @@ function StatsSection() {
 // ─── How It Works ─────────────────────────────────────────────────────────────
 function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-24 bg-white">
+    <section id="how-it-works" className="py-32 bg-white">
       <div className="container">
         <div className="text-center mb-16">
           <Badge variant="success" className="mb-4">Simple 4-Step Process</Badge>
@@ -359,10 +359,10 @@ function HowItWorksSection() {
           {HOW_IT_WORKS.map((step, i) => {
             const Icon = step.icon
             return (
-              <div key={step.step} className={`animate-fade-up delay-${(i + 1) * 100}`}>
-                <div className="relative flex flex-col items-center text-center p-6 rounded-2xl border border-[hsl(220,13%,92%)] bg-white hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
+              <div key={step.step} className={`animate-fade-up delay-${(i + 1) * 100} h-full`}>
+                <div className="relative flex flex-col items-center text-center p-8 rounded-2xl border border-gray-100 bg-white hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group h-full">
                   {/* Step number */}
-                  <div className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
+                  <div className="absolute -top-4 left-6 w-9 h-9 flex items-center justify-center rounded-full text-sm font-bold text-white shadow-md"
                     style={{ background: step.color }}>
                     {step.step}
                   </div>
@@ -388,13 +388,13 @@ function HowItWorksSection() {
 // ─── For Donors / For NGOs ────────────────────────────────────────────────────
 function RoleCards() {
   return (
-    <section id="for-donors" className="py-24 bg-[hsl(40,20%,97%)]">
+    <section id="for-donors" className="py-32 bg-[hsl(40,20%,97%)]">
       <div className="container">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Donor card */}
-          <div className="rounded-3xl overflow-hidden border border-[hsl(220,13%,90%)] bg-white shadow-sm group hover:shadow-xl transition-all duration-400">
-            <div className="h-3 bg-gradient-to-r from-[hsl(142,71%,28%)] to-[hsl(142,71%,42%)]" />
-            <div className="p-8">
+          <div className="flex flex-col rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-lg group hover:shadow-2xl transition-all duration-400">
+            <div className="h-3 bg-gradient-to-r from-green-700 to-green-500" />
+            <div className="p-10 flex flex-col flex-1">
               <div className="w-12 h-12 rounded-2xl bg-[hsl(142,60%,94%)] flex items-center justify-center mb-5">
                 <Package className="w-6 h-6 text-[hsl(142,71%,28%)]" />
               </div>
@@ -417,18 +417,20 @@ function RoleCards() {
                   </li>
                 ))}
               </ul>
-              <Link to="/register?role=DONOR">
-                <Button variant="primary" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                  Start Donating
-                </Button>
-              </Link>
+              <div className="mt-auto pt-8">
+                <Link to="/register?role=DONOR">
+                  <Button variant="primary" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                    Start Donating
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
 
           {/* NGO card */}
-          <div id="for-ngos" className="rounded-3xl overflow-hidden border border-[hsl(220,13%,90%)] bg-white shadow-sm group hover:shadow-xl transition-all duration-400">
-            <div className="h-3 bg-gradient-to-r from-[hsl(25,95%,53%)] to-[hsl(25,90%,44%)]" />
-            <div className="p-8">
+          <div id="for-ngos" className="flex flex-col rounded-3xl overflow-hidden border border-gray-100 bg-white shadow-lg group hover:shadow-2xl transition-all duration-400">
+            <div className="h-3 bg-gradient-to-r from-orange-500 to-orange-400" />
+            <div className="p-10 flex flex-col flex-1">
               <div className="w-12 h-12 rounded-2xl bg-[hsl(25,100%,94%)] flex items-center justify-center mb-5">
                 <Heart className="w-6 h-6 text-[hsl(25,90%,44%)]" />
               </div>
@@ -451,11 +453,13 @@ function RoleCards() {
                   </li>
                 ))}
               </ul>
-              <Link to="/register?role=RECIPIENT">
-                <Button variant="secondary" rightIcon={<ArrowRight className="w-4 h-4" />}>
-                  Register Organisation
-                </Button>
-              </Link>
+              <div className="mt-auto pt-8">
+                <Link to="/register?role=RECIPIENT">
+                  <Button variant="secondary" rightIcon={<ArrowRight className="w-4 h-4" />}>
+                    Register Organisation
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

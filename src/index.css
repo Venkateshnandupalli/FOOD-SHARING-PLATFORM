@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+@source "../src";
 
 /* ─── Design Tokens ─────────────────────────────────────────────────── */
 :root {
@@ -70,15 +71,10 @@
   --font-heading: 'Outfit', -apple-system, sans-serif;
 }
 
-/* ─── Reset & Base ──────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
+/* ─── Base Styles ──────────────────────────────────────────────────── */
+html, body {
+  width: 100%;
+  overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -115,8 +111,8 @@ p  { line-height: 1.8; margin-bottom: 1rem; }
 .container {
   width: 100%;
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
 }
 
 .glass {
