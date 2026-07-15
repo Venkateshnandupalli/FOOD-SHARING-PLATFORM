@@ -60,7 +60,7 @@ const ROLES = [
 // ─── Schema ───────────────────────────────────────────────────────────────────
 const registerSchema = z.object({
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
-  email: z.string().email('Enter a valid email address'),
+  email: z.string().trim().toLowerCase().email('Enter a valid email address'),
   phone: z.string().optional(),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirm_password: z.string(),
