@@ -19,7 +19,7 @@ export const organizationService = {
 
   /** Create a new organization */
   async createOrganization(org: OrganizationInsert): Promise<Organization> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('organizations')
       .insert(org)
       .select()

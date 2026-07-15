@@ -17,7 +17,7 @@ export const donationService = {
 
   /** Fetch AI recommended matches for a specific organization */
   async getRecommendedMatches(orgId: string) {
-    const { data, error } = await supabase.rpc('get_ai_recommended_matches', {
+    const { data, error } = await (supabase as any).rpc('get_ai_recommended_matches', {
       p_org_id: orgId
     })
 
@@ -60,19 +60,19 @@ export const donationService = {
     const fileName = `${donationId}/${Math.random().toString(36).substring(2)}.${fileExt}`
     
     // 1. Upload to Storage
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError } = await (supabase as any).storage
       .from('donation-images')
       .upload(fileName, file)
 
     if (uploadError) throw uploadError
 
     // 2. Get public URL
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = (supabase as any).storage
       .from('donation-images')
       .getPublicUrl(fileName)
 
     // 3. Insert record into donation_images table
-    const { data: imageRecord, error: dbError } = await supabase
+    const { data: imageRecord, error: dbError } = await (supabase as any)
       .from('donation_images')
       .insert({
         donation_id: donationId,
@@ -90,7 +90,7 @@ export const donationService = {
 
   /** Update donation status */
   async updateStatus(id: string, status: DonationUpdate['status']): Promise<Donation> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('donations')
       .update({ status })
       .eq('id', id)

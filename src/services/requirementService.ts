@@ -37,7 +37,7 @@ export const requirementService = {
    * Create a new requirement
    */
   async createRequirement(requirement: RecipientRequirement): Promise<RecipientRequirement> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('recipient_requirements')
       .insert(requirement)
       .select()

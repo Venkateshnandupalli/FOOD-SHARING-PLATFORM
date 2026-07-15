@@ -261,8 +261,31 @@ export default function Register() {
       navigate(roleRoutes[selectedRole])
     } catch (err: any) {
       console.error('Registration Error:', err)
-      const message = err?.message || err?.error_description || (typeof err === 'string' ? err : JSON.stringify(err))
-      toast.error(message || 'Registration failed.')
+      function getErrorMessage(e: unknown): string {
+        if (e instanceof Error && e.message) {
+          if (e.message === '{}') return 'An unexpected error occurred.';
+          return e.message;
+        }
+        if (typeof e === 'string' && e.trim()) {
+          if (e === '{}') return 'An unexpected error occurred.';
+          return e;
+        }
+        if (e && typeof e === 'object') {
+          const m = (e as any).message || (e as any).error_description || (e as any).detail;
+          if (typeof m === 'string' && m.trim()) {
+            if (m === '{}') return 'An unexpected error occurred.';
+            return m;
+          }
+          try {
+            const str = JSON.stringify(e);
+            if (str === '{}') return 'An unexpected error occurred.';
+            return str;
+          } catch { return 'Registration failed.'; }
+        }
+        return 'Registration failed.';
+      }
+
+      toast.error(getErrorMessage(err))
     } finally {
       setIsLoading(false)
     }

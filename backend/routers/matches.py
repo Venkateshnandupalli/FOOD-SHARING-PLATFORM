@@ -49,7 +49,7 @@ def get_matches_for_donation(donation_id: str, db: Session = Depends(get_db), cu
         SELECT m.*, 
                o.organization_name, o.contact_phone
         FROM matches m
-        JOIN organizations o ON o.id = m.recipient_id
+        JOIN organizations o ON o.id = m.recipient_organization_id
         WHERE m.donation_id = :donation_id
         ORDER BY m.total_match_score DESC
     """)
@@ -66,7 +66,7 @@ def get_matches_for_recipient(org_id: str, db: Session = Depends(get_db), curren
         FROM matches m
         JOIN donations d ON d.id = m.donation_id
         JOIN profiles p ON p.id = d.donor_id
-        WHERE m.recipient_id = :org_id AND m.status = 'PENDING'
+        WHERE m.recipient_organization_id = :org_id AND m.match_status = 'PENDING'
         ORDER BY m.total_match_score DESC
     """)
     result = db.execute(query, {"org_id": org_id}).mappings().all()

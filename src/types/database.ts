@@ -126,6 +126,7 @@ export interface Donation {
   pickup_longitude: number
   status: DonationStatus
   donor_notes: string | null
+  food_safety_acknowledged: boolean
   created_at: string
   updated_at: string
   // Joined
@@ -137,6 +138,7 @@ export interface DonationImage {
   id: string
   donation_id: string
   image_url: string
+  is_primary?: boolean | null
   uploaded_at: string
 }
 

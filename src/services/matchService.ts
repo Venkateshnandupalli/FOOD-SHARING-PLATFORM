@@ -41,7 +41,7 @@ export const matchService = {
    * Explicitly reject a pending match
    */
   async rejectMatch(matchId: string, orgId: string) {
-    const { error } = await supabase.rpc('reject_match', {
+    const { error } = await (supabase as any).rpc('reject_match', {
       p_match_id: matchId,
       p_org_id: orgId
     })

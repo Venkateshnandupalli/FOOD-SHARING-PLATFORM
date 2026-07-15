@@ -7,6 +7,7 @@ import { Leaf, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react'
 import { Button, Input, Card } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
+import type { UserRole } from '@/types/database'
 
 const loginSchema = z.object({
   email: z.string().email('Enter a valid email address'),
@@ -14,6 +15,25 @@ const loginSchema = z.object({
 })
 
 type LoginForm = z.infer<typeof loginSchema>
+
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message
+  if (typeof err === 'string' && err.trim()) return err
+  if (err && typeof err === 'object') {
+    const maybeMessage = (err as { message?: unknown }).message
+    if (typeof maybeMessage === 'string' && maybeMessage.trim()) return maybeMessage
+    const maybeError = (err as { error?: unknown }).error
+    if (typeof maybeError === 'string' && maybeError.trim()) return maybeError
+  }
+  return 'Login failed. Please try again.'
+}
+
+function normalizeRole(value: unknown): UserRole {
+  const role = typeof value === 'string' ? value.toUpperCase() : ''
+  return ['ADMIN', 'DONOR', 'RECIPIENT', 'VOLUNTEER', 'ANALYST'].includes(role)
+    ? (role as UserRole)
+    : 'DONOR'
+}
 
 export default function Login() {
   const navigate = useNavigate()
@@ -35,12 +55,34 @@ export default function Login() {
 
       if (error) throw error
 
-      // Fetch profile to determine role-based redirect
-      const { data: profile } = await supabase
-        .from('profiles')
+      let role: UserRole = 'DONOR'
+
+      const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
         .select('role')
         .eq('auth_user_id', authData.user.id)
-        .single()
+        .maybeSingle()
+
+      if (profileError) {
+        console.warn('Profile lookup warning:', profileError)
+      }
+
+      if (profile?.role) {
+        role = normalizeRole(profile.role)
+      } else {
+        const metadataRole = authData.user.user_metadata?.role
+        role = normalizeRole(metadataRole)
+
+        const { error: insertError } = await (supabase.from('profiles') as any).insert({
+          auth_user_id: authData.user.id,
+          full_name: authData.user.user_metadata?.full_name || authData.user.email || 'User',
+          role,
+          is_active: true,
+        })
+
+        if (insertError) {
+          console.warn('Profile create warning:', insertError)
+        }
+      }
 
       toast.success('Welcome back!')
 
@@ -52,11 +94,10 @@ export default function Login() {
         ANALYST: '/analytics',
       }
 
-      const redirect = searchParams.get('redirect') || roleRoutes[profile?.role ?? ''] || '/donor'
+      const redirect = searchParams.get('redirect') || roleRoutes[role] || '/donor'
       navigate(redirect)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed. Please try again.'
-      toast.error(message)
+      toast.error(getErrorMessage(err))
     } finally {
       setIsLoading(false)
     }

@@ -12,6 +12,25 @@ import { RatingModal } from '@/components/RatingModal'
 import { urgencyLabel } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
+function getErrorMessage(err: unknown): string {
+  if (err instanceof Error && err.message) return err.message
+  if (typeof err === 'string' && err.trim()) return err
+  if (err && typeof err === 'object') {
+    const maybeMessage = (err as { message?: unknown }).message || (err as any).error_description || (err as any).error
+    if (typeof maybeMessage === 'string' && maybeMessage.trim()) return maybeMessage
+    const maybeDetail = (err as { detail?: unknown }).detail
+    if (typeof maybeDetail === 'string' && maybeDetail.trim()) return maybeDetail
+    try {
+      const str = JSON.stringify(err)
+      if (str === '{}') return 'Something went wrong.'
+      return str
+    } catch {
+      return 'Something went wrong.'
+    }
+  }
+  return 'Something went wrong.'
+}
+
 export default function RecipientDashboard() {
   const { profile } = useAuthStore()
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
@@ -50,8 +69,8 @@ export default function RecipientDashboard() {
         setStats(orgStats)
         setDeliveries(orgDeliveries || [])
       }
-    } catch (e: any) {
-      toast.error(e.message)
+    } catch (e: unknown) {
+      toast.error(getErrorMessage(e))
     } finally {
       setIsLoading(false)
     }
@@ -68,8 +87,8 @@ export default function RecipientDashboard() {
       await matchService.acceptDonation(donationId, org.id)
       import('react-hot-toast').then(m => m.default.success('Donation accepted successfully!'))
       await loadData()
-    } catch (err: any) {
-      import('react-hot-toast').then(m => m.default.error('Failed to accept: ' + err.message))
+    } catch (err: unknown) {
+      import('react-hot-toast').then(m => m.default.error('Failed to accept: ' + getErrorMessage(err)))
     } finally {
       setClaimingId(null)
     }
@@ -81,8 +100,8 @@ export default function RecipientDashboard() {
       await matchService.rejectMatch(matchId, org.id)
       import('react-hot-toast').then(m => m.default.success('Match declined.'))
       await loadData()
-    } catch (err: any) {
-      import('react-hot-toast').then(m => m.default.error('Failed to decline: ' + err.message))
+    } catch (err: unknown) {
+      import('react-hot-toast').then(m => m.default.error('Failed to decline: ' + getErrorMessage(err)))
     }
   }
 

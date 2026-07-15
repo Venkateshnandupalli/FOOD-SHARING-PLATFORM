@@ -7,7 +7,7 @@ export const profileService = {
    * @param updates Object containing the fields to update
    */
   async updateProfile(profileId: string, updates: { full_name?: string; phone?: string; profile_image_url?: string }) {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('profiles')
       .update(updates)
       .eq('id', profileId)

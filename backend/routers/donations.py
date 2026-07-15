@@ -1,10 +1,13 @@
+from datetime import datetime
+from typing import List, Optional
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
-from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy.orm import Session
+
+from auth import User, verify_user
 from database import get_db
-from auth import verify_user, User
 
 router = APIRouter(
     prefix="/api/donations",
@@ -18,12 +21,20 @@ class DonationCreate(BaseModel):
     description: Optional[str] = None
     food_category: str
     dietary_type: str
-    quantity: int
+    quantity: float
     quantity_unit: str
     estimated_servings: int
-    use_before: str
+    prepared_at: datetime
+    use_before: datetime
     storage_type: str
     packaging_status: str
+    allergen_information: Optional[str] = None
+    pickup_address: str
+    pickup_latitude: float
+    pickup_longitude: float
+    donor_notes: Optional[str] = None
+    food_safety_acknowledged: bool = False
+    status: str = "AVAILABLE"
 
 @router.get("/donor/{donor_id}")
 def get_donor_donations(donor_id: str, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
@@ -56,17 +67,21 @@ def create_donation(donation: DonationCreate, db: Session = Depends(get_db), cur
     query = text("""
         INSERT INTO donations (
             donor_id, title, description, food_category, dietary_type,
-            quantity, quantity_unit, estimated_servings, use_before,
-            storage_type, packaging_status, status
+            quantity, quantity_unit, estimated_servings, prepared_at, use_before,
+            storage_type, packaging_status, allergen_information,
+            pickup_address, pickup_latitude, pickup_longitude, donor_notes,
+            food_safety_acknowledged, status
         ) VALUES (
             :donor_id, :title, :description, :food_category, :dietary_type,
-            :quantity, :quantity_unit, :estimated_servings, :use_before,
-            :storage_type, :packaging_status, 'AVAILABLE'
+            :quantity, :quantity_unit, :estimated_servings, :prepared_at, :use_before,
+            :storage_type, :packaging_status, :allergen_information,
+            :pickup_address, :pickup_latitude, :pickup_longitude, :donor_notes,
+            :food_safety_acknowledged, :status
         )
         RETURNING *
     """)
     try:
-        result = db.execute(query, donation.dict()).mappings().fetchone()
+        result = db.execute(query, donation.model_dump()).mappings().fetchone()
         db.commit()
         return result
     except Exception as e:

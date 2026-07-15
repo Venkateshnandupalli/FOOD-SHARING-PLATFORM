@@ -165,12 +165,13 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
   hint?: string
+  helperText?: string
   leftIcon?: React.ReactNode
   rightIcon?: React.ReactNode
 }
 
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, hint, leftIcon, rightIcon, className, id, ...props }, ref) => {
+  ({ label, error, hint, helperText, leftIcon, rightIcon, className, id, ...props }, ref) => {
     const inputId = id || label?.toLowerCase().replace(/\s+/g, '-')
     return (
       <div className="flex flex-col gap-1.5 w-full">
@@ -207,7 +208,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {error && <p className="text-xs text-red-500">{error}</p>}
-        {hint && !error && <p className="text-xs text-[hsl(220,10%,52%)]">{hint}</p>}
+        {(helperText || hint) && !error && <p className="text-xs text-[hsl(220,10%,52%)]">{helperText || hint}</p>}
       </div>
     )
   }
