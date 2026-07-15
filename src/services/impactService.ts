@@ -8,6 +8,13 @@ export interface ImpactData {
   donationsByCategory: { name: string; value: number }[]
 }
 
+export interface VolunteerImpactData {
+  totalDeliveries: number
+  totalDistanceKm: number
+  totalMealsDelivered: number
+  deliveriesByMonth: { name: string; deliveries: number; distance: number }[]
+}
+
 export const impactService = {
   /** Fetch and calculate impact metrics for a donor */
   async getDonorImpact(donorId: string): Promise<ImpactData> {
@@ -75,6 +82,85 @@ export const impactService = {
       totalWaterSavedGallons: Math.round(totalMeals * 150),
       donationsByMonth,
       donationsByCategory
+    }
+  },
+
+  /** Fetch and calculate impact metrics for a volunteer */
+  async getVolunteerImpact(volunteerId: string): Promise<VolunteerImpactData> {
+    const { data: rawData, error } = await supabase
+      .from('deliveries')
+      .select(`
+        created_at,
+        status,
+        match:matches (
+          distance_km,
+          donation:donations (
+            quantity,
+            quantity_unit
+          )
+        )
+      `)
+      .eq('volunteer_id', volunteerId)
+      .eq('status', 'DELIVERED')
+
+    if (error) throw error
+
+    const deliveries = rawData as any[]
+
+    let totalDeliveries = deliveries.length
+    let totalDistanceKm = 0
+    let totalMealsDelivered = 0
+
+    const monthlyData: Record<string, { deliveries: number; distance: number }> = {}
+
+    // Initialize last 6 months for the chart
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date()
+      d.setMonth(d.getMonth() - i)
+      const monthStr = d.toLocaleString('default', { month: 'short' })
+      monthlyData[monthStr] = { deliveries: 0, distance: 0 }
+    }
+
+    deliveries?.forEach(d => {
+      const match = d.match
+      if (!match) return
+
+      const distance = Number(match.distance_km) || 0
+      totalDistanceKm += distance
+
+      // Calculate meals
+      const donation = match.donation
+      if (donation) {
+        let meals = 0
+        const q = Number(donation.quantity)
+        if (donation.quantity_unit === 'servings') meals = q
+        else if (donation.quantity_unit === 'kg') meals = q * 2.2
+        else if (donation.quantity_unit === 'lbs') meals = q * 0.8
+        else meals = q
+        
+        totalMealsDelivered += meals
+      }
+
+      // Group by month
+      const date = new Date(d.created_at)
+      const monthStr = date.toLocaleString('default', { month: 'short' })
+      if (monthlyData[monthStr] !== undefined) {
+        monthlyData[monthStr].deliveries += 1
+        monthlyData[monthStr].distance += distance
+      }
+    })
+
+    const deliveriesByMonth = Object.keys(monthlyData).map(key => ({
+      name: key,
+      deliveries: monthlyData[key].deliveries,
+      distance: Math.round(monthlyData[key].distance * 10) / 10
+    }))
+
+    return {
+      totalDeliveries,
+      totalDistanceKm: Math.round(totalDistanceKm * 10) / 10,
+      totalMealsDelivered: Math.round(totalMealsDelivered),
+      deliveriesByMonth
     }
   }
 }

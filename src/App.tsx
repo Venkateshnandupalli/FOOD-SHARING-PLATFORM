@@ -20,7 +20,9 @@ import OrganizationOnboarding from '@/pages/Dashboard/Recipient/OrganizationOnbo
 import MyRequirements from '@/pages/Dashboard/Recipient/MyRequirements'
 
 import VolunteerDashboard from '@/pages/Dashboard/VolunteerDashboard'
+import VolunteerImpactDashboard from '@/pages/Dashboard/Volunteer/ImpactDashboard'
 import AdminDashboard from '@/pages/Dashboard/AdminDashboard'
+import AnalystDashboard from '@/pages/Dashboard/AnalystDashboard'
 
 // Shared
 import Settings from '@/pages/Shared/Settings'
@@ -122,7 +124,7 @@ export default function App() {
           <Route path="assignments" element={<ComingSoon page="All Assignments" />} />
           <Route path="available"   element={<ComingSoon page="Available Pickups" />} />
           <Route path="history"     element={<ComingSoon page="Delivery History" />} />
-          <Route path="impact"      element={<ComingSoon page="My Impact" />} />
+          <Route path="impact"      element={<VolunteerImpactDashboard />} />
           <Route path="ratings"     element={<ComingSoon page="Ratings & Reviews" />} />
           <Route path="settings"    element={<Settings />} />
         </Route>
@@ -155,7 +157,7 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<ComingSoon page="Analytics Overview" />} />
+          <Route index element={<AnalystDashboard />} />
           <Route path="donations"  element={<ComingSoon page="Donation Analytics" />} />
           <Route path="recipients" element={<ComingSoon page="Recipient Analytics" />} />
           <Route path="geographic" element={<ComingSoon page="Geographic Dashboard" />} />
