@@ -6,7 +6,7 @@ import {
   Users, Shield, MapPin, PlusCircle, ClipboardList,
   Star, TrendingUp, FileText
 } from 'lucide-react'
-import { Avatar, Badge } from '@/components/ui'
+import { Avatar, Badge, NotificationBell } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { roleLabel, cn } from '@/lib/utils'
 import type { UserRole } from '@/types/database'
@@ -191,14 +191,7 @@ function Topbar({ role, onMenuClick }: { role: UserRole; onMenuClick: () => void
       <div className="flex-1" />
 
       {/* Notification bell */}
-      <button
-        className="relative p-2 rounded-xl hover:bg-[hsl(220,13%,94%)] transition-colors"
-        aria-label="Notifications"
-        id="topbar-notifications-btn"
-      >
-        <Bell className="w-5 h-5 text-[hsl(220,10%,45%)]" />
-        <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[hsl(25,90%,44%)] border-2 border-white" />
-      </button>
+      <NotificationBell />
 
       {/* User chip */}
       <div className="flex items-center gap-2.5 pl-2 border-l border-[hsl(220,13%,91%)]">

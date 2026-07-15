@@ -427,3 +427,4 @@ export function ProgressBar({ value, color = 'green', showLabel = false, height 
     </div>
   )
 }
+export * from './NotificationBell'
