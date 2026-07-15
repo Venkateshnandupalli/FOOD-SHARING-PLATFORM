@@ -8,6 +8,7 @@ import { StatCard, Card, Badge, Button, EmptyState, ProgressBar } from '@/compon
 import { useAuthStore } from '@/store/authStore'
 import { donationService } from '@/services/donationService'
 import { deliveryService } from '@/services/deliveryService'
+import { impactService, type ImpactData } from '@/services/impactService'
 import { RatingModal } from '@/components/RatingModal'
 import { urgencyLabel, formatDate } from '@/lib/utils'
 
@@ -36,8 +37,9 @@ export default function DonorDashboard() {
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
   const [recentDonations, setRecentDonations] = useState<any[]>(MOCK_DONATIONS)
-  const [activeCount, setActiveCount] = useState(3)
+  const [activeCount, setActiveCount] = useState(0)
   const [deliveries, setDeliveries] = useState<any[]>([])
+  const [impact, setImpact] = useState<ImpactData | null>(null)
   const [ratingTarget, setRatingTarget] = useState<{
     deliveryId: string, 
     reviewedUserId: string, 
@@ -52,14 +54,16 @@ export default function DonorDashboard() {
         return // stick to mock
       }
       try {
-        const [donationsData, deliveriesData] = await Promise.all([
+        const [donationsData, deliveriesData, impactData] = await Promise.all([
           donationService.getDonorDonations(profile.id),
-          deliveryService.getDeliveriesForDonor(profile.id)
+          deliveryService.getDeliveriesForDonor(profile.id),
+          impactService.getDonorImpact(profile.id)
         ])
         const active = donationsData.filter(d => d.status === 'AVAILABLE' || d.status === 'MATCHED')
         setActiveCount(active.length)
         setRecentDonations(donationsData.slice(0, 4))
         setDeliveries(deliveriesData || [])
+        setImpact(impactData)
       } catch (err) {
         console.error('Dashboard load failed:', err)
       }
@@ -102,11 +106,10 @@ export default function DonorDashboard() {
         />
         <StatCard
           title="Meals Supported"
-          value="1,240"
-          subtitle="This month"
+          value={impact ? impact.totalMeals.toLocaleString() : "..."}
+          subtitle="Lifetime impact"
           icon={<Leaf className="w-5 h-5" />}
           color="orange"
-          trend={{ value: 8, label: 'vs last month' }}
         />
         <StatCard
           title="Successful Pickups"
@@ -286,18 +289,21 @@ export default function DonorDashboard() {
         <Card className="col-span-2">
           <h4 className="font-semibold text-[hsl(220,15%,15%)] mb-4">Monthly Impact Trend</h4>
           <div className="space-y-3">
-            {['Week 1', 'Week 2', 'Week 3', 'Week 4'].map((week, i) => {
-              const vals = [45, 62, 38, 78]
+            {impact ? impact.donationsByMonth.slice(-4).map((month) => {
+              const maxMeals = Math.max(...impact.donationsByMonth.map(m => m.meals)) || 1
+              const pct = (month.meals / maxMeals) * 100
               return (
-                <div key={week} className="flex items-center gap-4">
-                  <span className="w-14 text-xs text-[hsl(220,10%,52%)]">{week}</span>
-                  <ProgressBar value={vals[i]} color="green" height="sm" />
+                <div key={month.name} className="flex items-center gap-4">
+                  <span className="w-14 text-xs text-[hsl(220,10%,52%)]">{month.name}</span>
+                  <ProgressBar value={pct} color="green" height="sm" />
                   <span className="text-xs font-semibold text-[hsl(220,15%,25%)] w-16 text-right">
-                    {Math.round(vals[i] * 3.2)} meals
+                    {month.meals.toLocaleString()} meals
                   </span>
                 </div>
               )
-            })}
+            }) : (
+              <div className="text-sm text-gray-500 py-4">Loading impact data...</div>
+            )}
           </div>
         </Card>
 
