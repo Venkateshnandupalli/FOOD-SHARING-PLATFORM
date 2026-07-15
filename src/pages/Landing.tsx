@@ -111,9 +111,9 @@ function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-white/90 backdrop-blur-xl border-b border-[hsl(220,13%,90%)] shadow-sm'
+          ? 'glass-premium border-b-0'
           : 'bg-transparent'
       }`}
     >
@@ -208,72 +208,127 @@ function Hero() {
         />
       </div>
 
-      <div className="container pt-28 pb-20">
-        <div className="max-w-4xl mx-auto text-center">
-          {/* Label badge */}
-          <div className="animate-fade-up flex justify-center mb-6">
-            <Badge variant="success" dot className="px-4 py-1.5 text-sm font-semibold">
-              🌱 AI-Powered Food Redistribution Platform
-            </Badge>
+      <div className="container pt-32 pb-20 relative z-10">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Text Content */}
+          <div className="text-center lg:text-left">
+            <div className="animate-fade-up flex justify-center lg:justify-start mb-6">
+              <Badge variant="success" dot className="px-4 py-1.5 text-sm font-semibold shadow-sm">
+                🌱 AI-Powered Food Redistribution
+              </Badge>
+            </div>
+
+            <h1 className="animate-fade-up delay-100 mb-6 text-[hsl(220,15%,12%)] leading-[1.1]">
+              Rescue Surplus Food.
+              <br />
+              <span className="gradient-text">
+                Deliver It Where
+              </span>
+              <br />
+              It Matters Most.
+            </h1>
+
+            <p className="animate-fade-up delay-200 text-lg md:text-xl text-[hsl(220,10%,45%)] max-w-2xl mx-auto lg:mx-0 mb-10 leading-relaxed">
+              SharePlate AI connects verified food donors, recipient organisations, and volunteers
+              using geospatial matching and expiry-aware algorithms — reducing food waste and
+              fighting hunger simultaneously.
+            </p>
+
+            <div className="animate-fade-up delay-300 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-12">
+              <Link to="/register?role=DONOR">
+                <Button size="xl" variant="primary" className="shadow-lg shadow-[hsl(142,71%,28%,0.25)] hover:shadow-[hsl(142,71%,28%,0.4)] transition-all" rightIcon={<ArrowRight className="w-5 h-5" />}>
+                  Donate Food
+                </Button>
+              </Link>
+              <Link to="/register?role=RECIPIENT">
+                <Button size="xl" variant="outline" className="bg-white/50 backdrop-blur" leftIcon={<Heart className="w-5 h-5" />}>
+                  Register Organisation
+                </Button>
+              </Link>
+            </div>
+
+            <div className="animate-fade-up delay-400 flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-3 text-sm font-medium text-[hsl(220,10%,45%)]">
+              {[
+                { icon: Shield, text: 'Verified Partners' },
+                { icon: Zap, text: 'Real-Time Matching' },
+                { icon: MapPin, text: 'Geospatial AI' },
+              ].map(({ icon: Icon, text }) => (
+                <div key={text} className="flex items-center gap-1.5">
+                  <Icon className="w-4 h-4 text-[hsl(142,71%,28%)]" />
+                  <span>{text}</span>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1 className="animate-fade-up delay-100 mb-6 text-[hsl(220,15%,12%)] leading-tight">
-            Rescue Surplus Food.
-            <br />
-            <span style={{
-              background: 'linear-gradient(135deg, hsl(142,71%,28%) 0%, hsl(142,71%,42%) 50%, hsl(25,90%,44%) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}>
-              Deliver It Where
-            </span>
-            <br />
-            It Matters Most.
-          </h1>
-
-          {/* Subtitle */}
-          <p className="animate-fade-up delay-200 text-xl text-[hsl(220,10%,45%)] max-w-2xl mx-auto mb-10 leading-relaxed">
-            SharePlate AI connects verified food donors, recipient organisations, and volunteers
-            using geospatial matching and expiry-aware algorithms — reducing food waste and
-            fighting hunger simultaneously.
-          </p>
-
-          {/* CTA buttons */}
-          <div className="animate-fade-up delay-300 flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Link to="/register?role=DONOR">
-              <Button size="xl" variant="primary" rightIcon={<ArrowRight className="w-5 h-5" />}>
-                Donate Food
-              </Button>
-            </Link>
-            <Link to="/register?role=RECIPIENT">
-              <Button size="xl" variant="outline" leftIcon={<Heart className="w-5 h-5" />}>
-                Register Organisation
-              </Button>
-            </Link>
-          </div>
-
-          {/* Trust badges */}
-          <div className="animate-fade-up delay-400 flex flex-wrap items-center justify-center gap-6 text-sm text-[hsl(220,10%,50%)]">
-            {[
-              { icon: Shield, text: 'Verified Organisations Only' },
-              { icon: CheckCircle, text: 'OTP-Confirmed Deliveries' },
-              { icon: Clock, text: 'Expiry-Aware Matching' },
-              { icon: MapPin, text: 'PostGIS Geospatial' },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5">
-                <Icon className="w-4 h-4 text-[hsl(142,71%,28%)]" />
-                <span>{text}</span>
+          {/* Right Visual Anchor - Dynamic Floating Cards */}
+          <div className="hidden lg:block relative h-[500px] w-full">
+            {/* Center core pulse */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-[hsl(142,71%,28%,0.1)] rounded-full animate-pulse-glow blur-2xl" />
+            
+            {/* Main Center Card (Donor) */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 glass-premium rounded-2xl p-5 z-20 animate-float shadow-xl">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[hsl(142,60%,94%)] flex items-center justify-center">
+                    <Package className="w-5 h-5 text-[hsl(142,71%,28%)]" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-gray-900">50 Fresh Meals</p>
+                    <p className="text-xs text-gray-500">GreenLeaf Restaurant</p>
+                  </div>
+                </div>
+                <Badge variant="success" className="text-[10px]">ACTIVE</Badge>
               </div>
-            ))}
+              <div className="space-y-2 mb-4">
+                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-[hsl(142,71%,28%)] w-3/4 rounded-full" />
+                </div>
+                <p className="text-[10px] text-gray-400 text-right">Expires in 2 hrs</p>
+              </div>
+              <Button variant="primary" size="sm" fullWidth>AI Matching In Progress...</Button>
+            </div>
+
+            {/* Top Left Card (AI Match) */}
+            <div className="absolute top-10 left-0 w-64 glass-premium rounded-2xl p-4 z-30 animate-float-reverse shadow-lg">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-8 h-8 rounded-full bg-[hsl(25,100%,94%)] flex items-center justify-center">
+                  <Zap className="w-4 h-4 text-[hsl(25,90%,44%)]" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-gray-900">Match Found! (98%)</p>
+                  <p className="text-[10px] text-gray-500">Hope Community Shelter</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 text-[10px] text-gray-400 mt-3 border-t border-gray-100 pt-2">
+                <MapPin className="w-3 h-3" /> 2.4 km away • High priority
+              </div>
+            </div>
+
+            {/* Bottom Right Card (Volunteer) */}
+            <div className="absolute bottom-12 right-0 w-64 glass-premium rounded-2xl p-4 z-10 animate-float shadow-lg" style={{ animationDelay: '1s' }}>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-[hsl(195,85%,92%)] flex items-center justify-center">
+                    <Truck className="w-4 h-4 text-[hsl(195,85%,41%)]" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-900">Volunteer En Route</p>
+                    <p className="text-[10px] text-gray-500">Ananya R. (ETA: 12 min)</p>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 rounded-lg p-2 text-center text-[10px] font-medium text-gray-600 border border-gray-100">
+                OTP: 4829
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Scroll indicator */}
-        <div className="flex justify-center mt-20">
-          <a href="#stats" className="flex flex-col items-center gap-2 text-[hsl(220,10%,60%)] hover:text-[hsl(142,71%,28%)] transition-colors animate-float">
-            <span className="text-xs font-medium tracking-widest uppercase">Explore</span>
+        <div className="flex justify-center mt-12 lg:mt-20">
+          <a href="#stats" className="flex flex-col items-center gap-2 text-[hsl(220,10%,60%)] hover:text-[hsl(142,71%,28%)] transition-colors animate-float-reverse">
+            <span className="text-[10px] font-bold tracking-[0.2em] uppercase">Explore</span>
             <ChevronDown className="w-5 h-5" />
           </a>
         </div>
