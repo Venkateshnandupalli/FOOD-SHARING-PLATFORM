@@ -52,7 +52,7 @@ def get_my_deliveries(volunteer_id: str, db: Session = Depends(get_db), current_
         FROM deliveries del
         JOIN matches m ON m.id = del.match_id
         JOIN donations d ON d.id = m.donation_id
-        JOIN organizations o ON o.id = m.recipient_id
+        JOIN organizations o ON o.id = m.recipient_organization_id
         WHERE del.volunteer_id = :volunteer_id
         ORDER BY del.created_at DESC
     """)
