@@ -301,15 +301,29 @@ export default function DonorDashboard() {
 
         <Card className="flex flex-col gap-4">
           <h4 className="font-semibold text-[hsl(220,15%,15%)]">Food Alert</h4>
-          <div className="flex items-start gap-3 p-3 rounded-xl bg-[hsl(38,90%,95%)] border border-[hsl(38,80%,85%)]">
-            <AlertCircle className="w-5 h-5 text-[hsl(38,80%,38%)] shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-[hsl(38,80%,30%)]">1 donation expiring soon</p>
-              <p className="text-xs text-[hsl(38,70%,40%)] mt-0.5">
-                "Mixed Fruit Salad" expires in {urgencyLabel(MOCK_DONATIONS[2].use_before).label}
-              </p>
-            </div>
-          </div>
+          {(() => {
+            const expiring = recentDonations.find(d => d.status === 'AVAILABLE' && new Date(d.use_before).getTime() < Date.now() + 24 * 60 * 60 * 1000);
+            if (!expiring) return (
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <CheckCircle className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-gray-700">No urgent alerts</p>
+                  <p className="text-xs text-gray-500 mt-0.5">All your active donations are well within expiry limits.</p>
+                </div>
+              </div>
+            );
+            return (
+              <div className="flex items-start gap-3 p-3 rounded-xl bg-[hsl(38,90%,95%)] border border-[hsl(38,80%,85%)]">
+                <AlertCircle className="w-5 h-5 text-[hsl(38,80%,38%)] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-semibold text-[hsl(38,80%,30%)]">Donation expiring soon</p>
+                  <p className="text-xs text-[hsl(38,70%,40%)] mt-0.5">
+                    "{expiring.title}" expires in {urgencyLabel(expiring.use_before).label}
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
           <div className="mt-auto">
             <TrendingUp className="w-5 h-5 text-[hsl(142,71%,28%)] mb-2" />
             <p className="text-2xl font-black text-[hsl(220,15%,15%)]">79%</p>
