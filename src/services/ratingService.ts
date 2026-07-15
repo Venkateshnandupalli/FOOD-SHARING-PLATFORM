@@ -22,7 +22,7 @@ export const ratingService = {
         target_user_id: input.reviewed_user_id,
         rating: input.rating,
         feedback: input.comments || '',
-        role_of_rater: 'UNKNOWN' // We might need to adjust the backend if the frontend doesn't supply this
+        category: input.category
       })
     })
   },

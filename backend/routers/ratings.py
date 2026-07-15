@@ -15,29 +15,23 @@ class SubmitRatingReq(BaseModel):
     target_user_id: str
     rating: int
     feedback: str = None
-    role_of_rater: str
+    category: str
 
 @router.post("/")
 def submit_rating(req: SubmitRatingReq, db: Session = Depends(get_db), current_user: User = Depends(verify_user)):
-    """Submit a rating (calls Supabase RPC)."""
+    """Submit a rating (inserts directly into ratings table)."""
     query = text("""
-        SELECT submit_rating(
-            :delivery_id,
-            :target_user_id,
-            :rater_id,
-            :rating,
-            :feedback,
-            :role
-        )
+        INSERT INTO ratings (delivery_id, reviewer_id, reviewed_user_id, rating, category, comments)
+        VALUES (:delivery_id, :rater_id, :target_user_id, :rating, :category, :comments)
     """)
     try:
         db.execute(query, {
             "delivery_id": req.delivery_id,
-            "target_user_id": req.target_user_id,
             "rater_id": current_user.id,
+            "target_user_id": req.target_user_id,
             "rating": req.rating,
-            "feedback": req.feedback,
-            "role": req.role_of_rater
+            "category": req.category,
+            "comments": req.feedback
         })
         db.commit()
         return {"success": True}
