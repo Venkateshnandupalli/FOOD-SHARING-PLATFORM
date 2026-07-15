@@ -153,13 +153,6 @@ export default function CreateDonation() {
         status: 'AVAILABLE' // automatically go live for this demo
       }
 
-      // Mock submit if supabase isn't configured, else try real
-      if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('your-project')) {
-        console.warn("MOCK SUBMIT: Supabase credentials not found. Pretending to succeed.")
-        await new Promise(res => setTimeout(res, 1500)) // mock delay
-        navigate('/donor/donations')
-        return
-      }
 
       const newDonation = await donationService.createDonation(donationPayload)
 

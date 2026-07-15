@@ -33,27 +33,6 @@ export default function DonationDetail() {
     async function load() {
       if (!id) return
       try {
-        if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('your-project')) {
-          // Mock data
-          setDonation({
-            id: id,
-            title: 'Mock Donation Details',
-            description: 'This is a mock description because Supabase is not connected yet.',
-            quantity: 50,
-            quantity_unit: 'servings',
-            status: 'AVAILABLE',
-            food_category: 'COOKED_MEALS',
-            dietary_type: 'MIXED',
-            use_before: new Date(Date.now() + 120 * 60 * 1000).toISOString(),
-            prepared_at: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-            pickup_address: '123 Fake Street, Kakinada',
-            storage_type: 'ROOM_TEMPERATURE',
-            packaging_status: 'SEALED'
-          } as any)
-          setIsLoading(false)
-          return
-        }
-
         const data = await donationService.getDonationById(id)
         setDonation(data.donation)
         setImages(data.images)

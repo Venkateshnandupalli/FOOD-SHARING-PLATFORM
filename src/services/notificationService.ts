@@ -27,7 +27,7 @@ export const notificationService = {
 
   /** Mark a single notification as read */
   async markAsRead(notificationId: string) {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notifications')
       .update({ is_read: true })
       .eq('id', notificationId)
@@ -37,7 +37,7 @@ export const notificationService = {
 
   /** Mark all unread notifications as read for a user */
   async markAllAsRead(userId: string) {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('notifications')
       .update({ is_read: true })
       .eq('user_id', userId)

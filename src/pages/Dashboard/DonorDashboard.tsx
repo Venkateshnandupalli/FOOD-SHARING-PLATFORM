@@ -12,13 +12,7 @@ import { impactService, type ImpactData } from '@/services/impactService'
 import { RatingModal } from '@/components/RatingModal'
 import { urgencyLabel, formatDate } from '@/lib/utils'
 
-// ─── Mock data (replaced by API data in Phase 2) ──────────────────────────────
-const MOCK_DONATIONS = [
-  { id: '1', title: 'Vegetarian Rice Meals', quantity: 40, unit: 'servings', status: 'MATCHED',    use_before: new Date(Date.now() + 80 * 60 * 1000).toISOString(),  category: 'COOKED_MEALS' },
-  { id: '2', title: 'Whole Wheat Bread',     quantity: 25, unit: 'packs',    status: 'AVAILABLE',  use_before: new Date(Date.now() + 190 * 60 * 1000).toISOString(), category: 'BAKERY' },
-  { id: '3', title: 'Mixed Fruit Salad',     quantity: 12, unit: 'kg',       status: 'COLLECTED',  use_before: new Date(Date.now() + 30 * 60 * 1000).toISOString(),  category: 'FRUITS_VEGETABLES' },
-  { id: '4', title: 'Dal & Roti Set',        quantity: 60, unit: 'servings', status: 'DELIVERED',  use_before: new Date(Date.now() - 60 * 60 * 1000).toISOString(),  category: 'COOKED_MEALS' },
-]
+
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'success' | 'info' | 'warning' | 'danger' | 'default' | 'purple' }> = {
   DRAFT:          { label: 'Draft',         variant: 'default' },
@@ -36,7 +30,7 @@ export default function DonorDashboard() {
   const { profile } = useAuthStore()
   const firstName = profile?.full_name?.split(' ')[0] ?? 'there'
 
-  const [recentDonations, setRecentDonations] = useState<any[]>(MOCK_DONATIONS)
+  const [recentDonations, setRecentDonations] = useState<any[]>([])
   const [activeCount, setActiveCount] = useState(0)
   const [deliveries, setDeliveries] = useState<any[]>([])
   const [impact, setImpact] = useState<ImpactData | null>(null)
@@ -50,9 +44,7 @@ export default function DonorDashboard() {
   useEffect(() => {
     async function fetchDashboard() {
       if (!profile) return
-      if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('your-project')) {
-        return // stick to mock
-      }
+
       try {
         const [donationsData, deliveriesData, impactData] = await Promise.all([
           donationService.getDonorDonations(profile.id),

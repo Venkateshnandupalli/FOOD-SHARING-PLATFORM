@@ -16,5 +16,20 @@ export const profileService = {
 
     if (error) throw error
     return data
+  },
+
+  /**
+   * Fetches a user's profile information.
+   * @param profileId The UUID of the profile
+   */
+  async getProfile(profileId: string) {
+    const { data, error } = await (supabase as any)
+      .from('profiles')
+      .select('*')
+      .eq('id', profileId)
+      .single()
+
+    if (error) throw error
+    return data
   }
 }

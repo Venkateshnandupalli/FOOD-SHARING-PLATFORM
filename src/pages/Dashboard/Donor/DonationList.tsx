@@ -31,24 +31,6 @@ export default function DonationList() {
     async function load() {
       if (!profile) return
       try {
-        if (!import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL.includes('your-project')) {
-          // Mock data if no real keys
-          setDonations([
-            {
-              id: 'mock-1',
-              title: 'Vegetarian Rice Meals',
-              quantity: 40,
-              quantity_unit: 'servings',
-              status: 'MATCHED',
-              use_before: new Date(Date.now() + 80 * 60 * 1000).toISOString(),
-              category: 'COOKED_MEALS',
-              created_at: new Date().toISOString()
-            } as any
-          ])
-          setIsLoading(false)
-          return
-        }
-
         const data = await donationService.getDonorDonations(profile.id)
         setDonations(data)
       } catch (err: any) {

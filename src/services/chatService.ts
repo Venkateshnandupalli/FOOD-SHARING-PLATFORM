@@ -16,7 +16,7 @@ export interface ChatMessage {
 export const chatService = {
   /** Fetch existing messages for a match */
   async getMessages(matchId: string): Promise<ChatMessage[]> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('chat_messages')
       .select(`
         *,
@@ -31,7 +31,7 @@ export const chatService = {
 
   /** Send a new message */
   async sendMessage(matchId: string, senderId: string, content: string) {
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('chat_messages')
       .insert({
         match_id: matchId,
