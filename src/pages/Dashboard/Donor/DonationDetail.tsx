@@ -5,6 +5,7 @@ import {
   Trash2, XCircle, CheckCircle, Navigation 
 } from 'lucide-react'
 import { Button, Card, Badge, Spinner } from '@/components/ui'
+import { ChatWindow } from '@/components/chat/ChatWindow'
 import { useAuthStore } from '@/store/authStore'
 import { donationService } from '@/services/donationService'
 import { matchService } from '@/services/matchService'
@@ -26,6 +27,7 @@ export default function DonationDetail() {
   const [isCancelling, setIsCancelling] = useState(false)
   const [matches, setMatches] = useState<any[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
+  const [activeChatMatchId, setActiveChatMatchId] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -225,21 +227,40 @@ export default function DonationDetail() {
             ) : (
               <div className="space-y-4">
                 {matches.map(match => (
-                  <div key={match.id} className="p-4 rounded-xl border border-[hsl(220,13%,91%)] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-[hsl(220,15%,20%)]">{match.organizations?.organization_name}</h4>
-                        <Badge variant={match.match_status === 'ACCEPTED' ? 'success' : match.match_status === 'PENDING' ? 'warning' : 'default'}>
-                          {match.match_status}
-                        </Badge>
+                  <div key={match.id} className="p-4 rounded-xl border border-[hsl(220,13%,91%)] bg-white flex flex-col justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-bold text-[hsl(220,15%,20%)]">{match.organizations?.organization_name}</h4>
+                          <Badge variant={match.match_status === 'ACCEPTED' ? 'success' : match.match_status === 'PENDING' ? 'warning' : 'default'}>
+                            {match.match_status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-[hsl(220,10%,52%)]">Match Score: {Math.round(match.total_match_score * 100)}%</p>
                       </div>
-                      <p className="text-xs text-[hsl(220,10%,52%)]">Match Score: {Math.round(match.total_match_score * 100)}%</p>
+                      
+                      <div className="flex items-center gap-3">
+                        {match.score_explanation && (
+                          <div className="text-xs text-[hsl(220,15%,35%)] bg-[hsl(40,20%,97%)] p-2 rounded-lg max-w-xs">
+                            {Object.values(match.score_explanation).map((v: any, i) => (
+                              <div key={i}>• {v}</div>
+                            ))}
+                          </div>
+                        )}
+                        <Button 
+                          variant={activeChatMatchId === match.id ? 'primary' : 'outline'} 
+                          size="sm" 
+                          onClick={() => setActiveChatMatchId(activeChatMatchId === match.id ? null : match.id)}
+                        >
+                          {activeChatMatchId === match.id ? 'Close Chat' : 'Chat'}
+                        </Button>
+                      </div>
                     </div>
-                    {match.score_explanation && (
-                      <div className="text-xs text-[hsl(220,15%,35%)] bg-[hsl(40,20%,97%)] p-2 rounded-lg max-w-xs">
-                        {Object.values(match.score_explanation).map((v: any, i) => (
-                          <div key={i}>• {v}</div>
-                        ))}
+
+                    {/* Chat Window Toggle */}
+                    {activeChatMatchId === match.id && profile && (
+                      <div className="mt-4 pt-4 border-t border-[hsl(220,13%,91%)] animate-in slide-in-from-top-2">
+                        <ChatWindow matchId={match.id} currentUserId={profile.id} />
                       </div>
                     )}
                   </div>
