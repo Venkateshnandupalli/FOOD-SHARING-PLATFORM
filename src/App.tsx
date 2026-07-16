@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth'
 import Landing from '@/pages/Landing'
 import Login from '@/pages/Auth/Login'
 import Register from '@/pages/Auth/Register'
+import ChooseRole from '@/pages/Auth/ChooseRole'
 
 // Dashboard layout + dashboards
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -70,6 +71,7 @@ export default function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/choose-role" element={<ChooseRole />} />
 
         {/* ── Donor routes ── */}
         <Route

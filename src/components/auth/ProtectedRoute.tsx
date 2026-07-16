@@ -28,6 +28,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />
   }
 
+  if (profile && !profile.is_onboarded) {
+    return <Navigate to="/choose-role" replace />
+  }
+
   if (allowedRoles && profile && !allowedRoles.includes(profile.role)) {
     // Redirect to their own dashboard
     const roleRoutes: Record<UserRole, string> = {

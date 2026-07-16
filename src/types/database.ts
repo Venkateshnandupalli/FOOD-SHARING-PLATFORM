@@ -69,6 +69,7 @@ export interface Profile {
   trust_score: number
   total_ratings: number
   is_active: boolean
+  is_onboarded: boolean
   created_at: string
   updated_at: string
 }
