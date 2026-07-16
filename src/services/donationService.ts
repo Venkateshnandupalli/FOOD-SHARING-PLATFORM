@@ -12,7 +12,14 @@ export const donationService = {
   
   /** Fetch all donations created by a specific donor */
   async getDonorDonations(donorId: string): Promise<Donation[]> {
-    return fetchApi(`/donations/donor/${donorId}`)
+    const { data, error } = await supabase
+      .from('donations')
+      .select('*')
+      .eq('donor_id', donorId)
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
   },
 
   /** Fetch AI recommended matches for a specific organization */
@@ -27,7 +34,14 @@ export const donationService = {
 
   /** Fetch all available donations (for recipients) */
   async getAvailableDonations(): Promise<any[]> {
-    return fetchApi('/donations/available')
+    const { data, error } = await supabase
+      .from('donations')
+      .select('*')
+      .eq('status', 'AVAILABLE')
+      .order('created_at', { ascending: false })
+
+    if (error) throw error
+    return data || []
   },
 
   /** Fetch a specific donation with its images */
@@ -48,10 +62,14 @@ export const donationService = {
 
   /** Create a new donation */
   async createDonation(donation: DonationInsert): Promise<Donation> {
-    return fetchApi('/donations/', {
-      method: 'POST',
-      body: JSON.stringify(donation)
-    })
+    const { data, error } = await supabase
+      .from('donations')
+      .insert(donation)
+      .select()
+      .single()
+
+    if (error) throw error
+    return data
   },
 
   /** Upload an image to the donation-images bucket */
