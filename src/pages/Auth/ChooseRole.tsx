@@ -55,8 +55,7 @@ export default function ChooseRole() {
 
     setIsSubmitting(true)
     try {
-      const { error } = await supabase
-        .from('profiles')
+      const { error } = await (supabase.from('profiles') as any)
         .update({
           role: selectedRole,
           is_onboarded: true
