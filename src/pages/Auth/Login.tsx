@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -40,6 +40,24 @@ export default function Login() {
   const [searchParams] = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const { isAuthenticated, profile, isLoading: authLoading } = useAuthStore()
+
+  useEffect(() => {
+    if (isAuthenticated && !authLoading) {
+      if (profile && !profile.is_onboarded) {
+        navigate('/choose-role', { replace: true })
+      } else if (profile) {
+        const roleRoutes: Record<string, string> = {
+          ADMIN: '/admin',
+          DONOR: '/donor',
+          RECIPIENT: '/recipient',
+          VOLUNTEER: '/volunteer',
+          ANALYST: '/analytics',
+        }
+        navigate(searchParams.get('redirect') || roleRoutes[profile.role] || '/donor', { replace: true })
+      }
+    }
+  }, [isAuthenticated, profile, authLoading, navigate, searchParams])
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
