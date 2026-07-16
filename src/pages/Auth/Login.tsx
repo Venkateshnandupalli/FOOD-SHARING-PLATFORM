@@ -8,6 +8,7 @@ import { Button, Input, Card } from '@/components/ui'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import type { UserRole } from '@/types/database'
+import { useAuthStore } from '@/store/authStore'
 
 const loginSchema = z.object({
   email: z.string().trim().toLowerCase().email('Enter a valid email address'),

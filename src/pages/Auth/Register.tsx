@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
 import type { UserRole } from '@/types/database'
+import { useAuthStore } from '@/store/authStore'
 
 // ─── Role selection data ──────────────────────────────────────────────────────
 const ROLES = [
