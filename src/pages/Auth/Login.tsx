@@ -137,7 +137,12 @@ export default function Login() {
 
   async function handleOAuthLogin(provider: 'google' | 'github') {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider })
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/login`
+        }
+      })
       if (error) throw error
     } catch (err: any) {
       toast.error(err.message || 'Failed to authenticate')
