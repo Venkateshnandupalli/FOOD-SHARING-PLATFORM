@@ -62,7 +62,7 @@ export const donationService = {
 
   /** Create a new donation */
   async createDonation(donation: DonationInsert): Promise<Donation> {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('donations')
       .insert(donation)
       .select()
