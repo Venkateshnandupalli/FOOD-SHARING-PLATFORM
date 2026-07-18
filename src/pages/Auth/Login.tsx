@@ -66,20 +66,27 @@ export default function Login() {
 
   async function onSubmit(data: LoginForm) {
     setIsLoading(true)
+    console.log('[DEBUG] onSubmit starts with data:', data)
     try {
+      console.log('[DEBUG] Calling supabase.auth.signInWithPassword...')
       const { data: authData, error } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
       })
 
+      console.log('[DEBUG] supabase.auth.signInWithPassword response:', { authData, error })
+
       if (error) throw error
 
       let role: UserRole = 'DONOR'
 
+      console.log('[DEBUG] Querying profiles table for auth_user_id:', authData.user.id)
       const { data: profile, error: profileError } = await (supabase.from('profiles') as any)
         .select('role')
         .eq('auth_user_id', authData.user.id)
         .maybeSingle()
+
+      console.log('[DEBUG] profiles table query response:', { profile, profileError })
 
       if (profileError) {
         console.warn('Profile lookup warning:', profileError)
@@ -91,12 +98,15 @@ export default function Login() {
         const metadataRole = authData.user.user_metadata?.role
         role = normalizeRole(metadataRole)
 
+        console.log('[DEBUG] Profile not found. Inserting default profile. Role:', role)
         const { error: insertError } = await (supabase.from('profiles') as any).insert({
           auth_user_id: authData.user.id,
           full_name: authData.user.user_metadata?.full_name || authData.user.email || 'User',
           role,
           is_active: true,
         })
+
+        console.log('[DEBUG] Profile insert response error (if any):', insertError)
 
         if (insertError) {
           console.warn('Profile create warning:', insertError)
@@ -114,10 +124,13 @@ export default function Login() {
       }
 
       const redirect = searchParams.get('redirect') || roleRoutes[role] || '/donor'
+      console.log('[DEBUG] Login successful. Redirecting to:', redirect)
       navigate(redirect)
     } catch (err: unknown) {
+      console.error('[DEBUG] Caught error in onSubmit:', err)
       toast.error(getErrorMessage(err))
     } finally {
+      console.log('[DEBUG] onSubmit finally block')
       setIsLoading(false)
     }
   }
