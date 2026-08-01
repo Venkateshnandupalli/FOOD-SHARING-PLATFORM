@@ -43,6 +43,8 @@ import AnalystDashboard from '@/pages/Dashboard/AnalystDashboard'
 import DonationAnalytics from '@/pages/Dashboard/Analyst/DonationAnalytics'
 import GeographicDashboard from '@/pages/Dashboard/Analyst/GeographicDashboard'
 import DataExport from '@/pages/Dashboard/Analyst/DataExport'
+import RecipientAnalytics from '@/pages/Dashboard/Analyst/RecipientAnalytics'
+import MLInsights from '@/pages/Dashboard/Analyst/MLInsights'
 
 // Shared
 import Settings from '@/pages/Shared/Settings'
@@ -182,9 +184,9 @@ export default function App() {
         >
           <Route index element={<AnalystDashboard />} />
           <Route path="donations"  element={<DonationAnalytics />} />
-          <Route path="recipients" element={<ComingSoon page="Recipient Analytics" />} />
+          <Route path="recipients" element={<RecipientAnalytics />} />
           <Route path="geographic" element={<GeographicDashboard />} />
-          <Route path="ml"         element={<ComingSoon page="ML Insights" />} />
+          <Route path="ml"         element={<MLInsights />} />
           <Route path="export"     element={<DataExport />} />
         </Route>
 
