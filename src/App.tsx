@@ -36,9 +36,13 @@ import LiveOperations from '@/pages/Dashboard/Admin/LiveOperations'
 import Verifications from '@/pages/Dashboard/Admin/Verifications'
 import AllDonations from '@/pages/Dashboard/Admin/AllDonations'
 import UserManagement from '@/pages/Dashboard/Admin/UserManagement'
+import Reports from '@/pages/Dashboard/Admin/Reports'
+import PlatformAnalytics from '@/pages/Dashboard/Admin/PlatformAnalytics'
 
 import AnalystDashboard from '@/pages/Dashboard/AnalystDashboard'
 import DonationAnalytics from '@/pages/Dashboard/Analyst/DonationAnalytics'
+import GeographicDashboard from '@/pages/Dashboard/Analyst/GeographicDashboard'
+import DataExport from '@/pages/Dashboard/Analyst/DataExport'
 
 // Shared
 import Settings from '@/pages/Shared/Settings'
@@ -162,8 +166,8 @@ export default function App() {
           <Route path="verifications" element={<Verifications />} />
           <Route path="donations"     element={<AllDonations />} />
           <Route path="users"         element={<UserManagement />} />
-          <Route path="reports"       element={<ComingSoon page="Reports & Incidents" />} />
-          <Route path="analytics"     element={<ComingSoon page="Platform Analytics" />} />
+          <Route path="reports"       element={<Reports />} />
+          <Route path="analytics"     element={<PlatformAnalytics />} />
           <Route path="settings"      element={<Settings />} />
         </Route>
 
@@ -179,9 +183,9 @@ export default function App() {
           <Route index element={<AnalystDashboard />} />
           <Route path="donations"  element={<DonationAnalytics />} />
           <Route path="recipients" element={<ComingSoon page="Recipient Analytics" />} />
-          <Route path="geographic" element={<ComingSoon page="Geographic Dashboard" />} />
+          <Route path="geographic" element={<GeographicDashboard />} />
           <Route path="ml"         element={<ComingSoon page="ML Insights" />} />
-          <Route path="export"     element={<ComingSoon page="Data Export" />} />
+          <Route path="export"     element={<DataExport />} />
         </Route>
 
         {/* ── Fallback ── */}

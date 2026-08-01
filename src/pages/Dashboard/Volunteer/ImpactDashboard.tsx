@@ -42,6 +42,18 @@ export default function VolunteerImpactDashboard() {
   // We estimate average meal weight at 1.2 lbs, so ~4.5 lbs CO2 saved per meal.
   const co2Saved = Math.round(impact.totalMealsDelivered * 4.5)
 
+  // Trust Level gamification
+  const totalDeliveries = impact.totalDeliveries
+  const trustLevel =
+    totalDeliveries >= 100 ? { label: 'Platinum', emoji: '💎', color: 'from-cyan-400 to-blue-500', min: 100, next: null } :
+    totalDeliveries >= 50  ? { label: 'Gold',     emoji: '🥇', color: 'from-yellow-400 to-amber-500', min: 50, next: 100 } :
+    totalDeliveries >= 20  ? { label: 'Silver',   emoji: '🥈', color: 'from-slate-300 to-slate-400',  min: 20, next: 50 } :
+                             { label: 'Bronze',   emoji: '🥉', color: 'from-orange-400 to-amber-600',  min: 0,  next: 20 }
+
+  const progressToNext = trustLevel.next
+    ? Math.round(((totalDeliveries - trustLevel.min) / (trustLevel.next - trustLevel.min)) * 100)
+    : 100
+
   const statCards = [
     { label: 'Deliveries Completed', value: impact.totalDeliveries, icon: Truck, color: 'text-[hsl(195,85%,41%)]', bg: 'bg-[hsl(195,85%,92%)]' },
     { label: 'Miles Driven', value: `${impact.totalDistanceKm} km`, icon: MapPin, color: 'text-indigo-600', bg: 'bg-indigo-50' },
@@ -54,6 +66,43 @@ export default function VolunteerImpactDashboard() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">My Impact</h1>
         <p className="text-gray-500 mt-1">Track your contribution to reducing food waste and feeding the community.</p>
+      </div>
+
+      {/* ── Trust Level Banner ── */}
+      <div className={`relative overflow-hidden rounded-2xl p-6 bg-gradient-to-r ${trustLevel.color} text-white shadow-lg`}>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-semibold opacity-80 uppercase tracking-widest mb-1">Volunteer Level</p>
+            <h2 className="text-3xl font-black flex items-center gap-3">
+              {trustLevel.emoji} {trustLevel.label}
+            </h2>
+            <p className="text-sm opacity-80 mt-1">
+              {trustLevel.next
+                ? `${totalDeliveries} deliveries • ${trustLevel.next - totalDeliveries} more to reach next level`
+                : `${totalDeliveries} deliveries • Maximum level achieved! 🎉`}
+            </p>
+          </div>
+          <div className="text-6xl opacity-20 font-black select-none">{trustLevel.emoji}</div>
+        </div>
+        {trustLevel.next && (
+          <div className="mt-4">
+            <div className="flex justify-between text-xs opacity-70 mb-1.5">
+              <span>{trustLevel.label}</span>
+              <span>
+                {trustLevel.next === 20 ? 'Silver' :
+                 trustLevel.next === 50 ? 'Gold' :
+                 trustLevel.next === 100 ? 'Platinum' : ''}
+              </span>
+            </div>
+            <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-white/70 rounded-full transition-all duration-700"
+                style={{ width: `${progressToNext}%` }}
+              />
+            </div>
+            <p className="text-xs opacity-70 mt-1">{progressToNext}% to next level</p>
+          </div>
+        )}
       </div>
 
       {/* Hero Impact Metrics */}

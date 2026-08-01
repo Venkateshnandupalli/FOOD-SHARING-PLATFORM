@@ -40,6 +40,7 @@ export default function DonorDashboard() {
     reviewedUserName: string,
     defaultCategory: 'FOOD_QUALITY' | 'DELIVERY_EXPERIENCE'
   } | null>(null)
+  const [pickupRate, setPickupRate] = useState<number | null>(null)
 
   useEffect(() => {
     async function fetchDashboard() {
@@ -56,6 +57,12 @@ export default function DonorDashboard() {
         setRecentDonations(donationsData.slice(0, 4))
         setDeliveries(deliveriesData || [])
         setImpact(impactData)
+
+        // Compute real pickup success rate
+        const completedDels = (deliveriesData || []).filter((d: any) => d.status === 'DELIVERED').length
+        const failedDels = (deliveriesData || []).filter((d: any) => d.status === 'FAILED' || d.status === 'CANCELLED').length
+        const total = completedDels + failedDels
+        setPickupRate(total > 0 ? Math.round((completedDels / total) * 100) : null)
       } catch (err) {
         console.error('Dashboard load failed:', err)
       }
@@ -105,7 +112,7 @@ export default function DonorDashboard() {
         />
         <StatCard
           title="Successful Pickups"
-          value="94.2%"
+          value={pickupRate !== null ? `${pickupRate}%` : deliveries.length === 0 ? 'N/A' : '...'}
           subtitle="Lifetime rate"
           icon={<CheckCircle className="w-5 h-5" />}
           color="blue"
