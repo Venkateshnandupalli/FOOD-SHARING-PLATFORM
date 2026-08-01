@@ -15,18 +15,35 @@ import CreateDonation from '@/pages/Dashboard/Donor/CreateDonation'
 import DonationList from '@/pages/Dashboard/Donor/DonationList'
 import DonationDetail from '@/pages/Dashboard/Donor/DonationDetail'
 import ImpactDashboard from '@/pages/Dashboard/Donor/ImpactDashboard'
+import PickupTracking from '@/pages/Dashboard/Donor/PickupTracking'
+
 import RecipientDashboard from '@/pages/Dashboard/RecipientDashboard'
 import BrowseDonations from '@/pages/Dashboard/Recipient/BrowseDonations'
 import OrganizationOnboarding from '@/pages/Dashboard/Recipient/OrganizationOnboarding'
 import MyRequirements from '@/pages/Dashboard/Recipient/MyRequirements'
+import AcceptedDonations from '@/pages/Dashboard/Recipient/AcceptedDonations'
+import RecipientDeliveryHistory from '@/pages/Dashboard/Recipient/DeliveryHistory'
 
 import VolunteerDashboard from '@/pages/Dashboard/VolunteerDashboard'
 import VolunteerImpactDashboard from '@/pages/Dashboard/Volunteer/ImpactDashboard'
+import AllAssignments from '@/pages/Dashboard/Volunteer/AllAssignments'
+import AvailablePickups from '@/pages/Dashboard/Volunteer/AvailablePickups'
+import VolunteerDeliveryHistory from '@/pages/Dashboard/Volunteer/DeliveryHistory'
+import VolunteerRatings from '@/pages/Dashboard/Volunteer/Ratings'
+
 import AdminDashboard from '@/pages/Dashboard/AdminDashboard'
+import LiveOperations from '@/pages/Dashboard/Admin/LiveOperations'
+import Verifications from '@/pages/Dashboard/Admin/Verifications'
+import AllDonations from '@/pages/Dashboard/Admin/AllDonations'
+import UserManagement from '@/pages/Dashboard/Admin/UserManagement'
+
 import AnalystDashboard from '@/pages/Dashboard/AnalystDashboard'
+import DonationAnalytics from '@/pages/Dashboard/Analyst/DonationAnalytics'
 
 // Shared
 import Settings from '@/pages/Shared/Settings'
+import Notifications from '@/pages/Shared/Notifications'
+import OrganisationProfile from '@/pages/Shared/OrganisationProfile'
 
 // Guards
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute'
@@ -86,10 +103,10 @@ export default function App() {
           <Route path="create"       element={<CreateDonation />} />
           <Route path="donations"    element={<DonationList />} />
           <Route path="donations/:id"element={<DonationDetail />} />
-          <Route path="tracking"     element={<ComingSoon page="Pickup Tracking" />} />
+          <Route path="tracking"     element={<PickupTracking />} />
           <Route path="impact"       element={<ImpactDashboard />} />
-          <Route path="notifications"element={<ComingSoon page="Notifications" />} />
-          <Route path="organisation" element={<ComingSoon page="Organisation Profile" />} />
+          <Route path="notifications"element={<Notifications />} />
+          <Route path="organisation" element={<OrganisationProfile />} />
           <Route path="settings"     element={<Settings />} />
         </Route>
 
@@ -106,10 +123,10 @@ export default function App() {
           <Route path="onboarding"    element={<OrganizationOnboarding />} />
           <Route path="browse"        element={<BrowseDonations />} />
           <Route path="requirements"  element={<MyRequirements />} />
-          <Route path="accepted"      element={<ComingSoon page="Accepted Donations" />} />
-          <Route path="history"       element={<ComingSoon page="Delivery History" />} />
-          <Route path="notifications" element={<ComingSoon page="Notifications" />} />
-          <Route path="organisation"  element={<ComingSoon page="Organisation Profile" />} />
+          <Route path="accepted"      element={<AcceptedDonations />} />
+          <Route path="history"       element={<RecipientDeliveryHistory />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="organisation"  element={<OrganisationProfile />} />
           <Route path="settings"      element={<Settings />} />
         </Route>
 
@@ -123,11 +140,11 @@ export default function App() {
           }
         >
           <Route index element={<VolunteerDashboard />} />
-          <Route path="assignments" element={<ComingSoon page="All Assignments" />} />
-          <Route path="available"   element={<ComingSoon page="Available Pickups" />} />
-          <Route path="history"     element={<ComingSoon page="Delivery History" />} />
+          <Route path="assignments" element={<AllAssignments />} />
+          <Route path="available"   element={<AvailablePickups />} />
+          <Route path="history"     element={<VolunteerDeliveryHistory />} />
           <Route path="impact"      element={<VolunteerImpactDashboard />} />
-          <Route path="ratings"     element={<ComingSoon page="Ratings & Reviews" />} />
+          <Route path="ratings"     element={<VolunteerRatings />} />
           <Route path="settings"    element={<Settings />} />
         </Route>
 
@@ -141,10 +158,10 @@ export default function App() {
           }
         >
           <Route index element={<AdminDashboard />} />
-          <Route path="operations"    element={<ComingSoon page="Live Operations Map" />} />
-          <Route path="verifications" element={<ComingSoon page="Verification Queue" />} />
-          <Route path="donations"     element={<ComingSoon page="All Donations" />} />
-          <Route path="users"         element={<ComingSoon page="User Management" />} />
+          <Route path="operations"    element={<LiveOperations />} />
+          <Route path="verifications" element={<Verifications />} />
+          <Route path="donations"     element={<AllDonations />} />
+          <Route path="users"         element={<UserManagement />} />
           <Route path="reports"       element={<ComingSoon page="Reports & Incidents" />} />
           <Route path="analytics"     element={<ComingSoon page="Platform Analytics" />} />
           <Route path="settings"      element={<Settings />} />
@@ -160,7 +177,7 @@ export default function App() {
           }
         >
           <Route index element={<AnalystDashboard />} />
-          <Route path="donations"  element={<ComingSoon page="Donation Analytics" />} />
+          <Route path="donations"  element={<DonationAnalytics />} />
           <Route path="recipients" element={<ComingSoon page="Recipient Analytics" />} />
           <Route path="geographic" element={<ComingSoon page="Geographic Dashboard" />} />
           <Route path="ml"         element={<ComingSoon page="ML Insights" />} />
